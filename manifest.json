@@ -3,8 +3,8 @@
   "short_name": "Catlendar",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#fdf8f2",
-  "theme_color": "#e8a87c",
+  "background_color": "#f8f8f2",
+  "theme_color": "#9aab60",
   "icons": [
     { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
