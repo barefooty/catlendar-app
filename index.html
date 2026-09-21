@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
 <meta name="theme-color" content="#9aab60">
-<script>window.APP_BUILD='v55-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
+<script>window.APP_BUILD='v56-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -298,6 +298,7 @@
   .task .rowCollapse:hover{color:var(--accent); background:var(--cell-bg);}
   .task .rowCollapse.shift{right:58px;}
   .secGrid.rows > .task .title{padding-right:70px;}
+  .secGrid:not(.rows) > .task{margin-bottom:10px;}
   .subBar{height:5px; border-radius:3px; background:var(--line); margin:8px 0 2px; overflow:hidden;}
   .subBar > i{display:block; height:100%; background:var(--green);}
   #taskSortBox{align-items:center; margin-left:auto;}
@@ -306,22 +307,35 @@
   .densToggle{display:inline-flex; border:1.5px solid var(--line); border-radius:999px; overflow:hidden; margin-left:auto;}
   .densToggle button{background:none; border:none; padding:3px 12px; font-size:12.5px; color:var(--sub); border-radius:0;}
   .densToggle button.on{background:var(--ink); color:var(--bg);}
+  .boardGrid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; align-items:start; margin-bottom:14px;}
+  @media (max-width:980px){ .boardGrid{grid-template-columns:minmax(0,1fr);} }
+  .boardCol{min-width:0;}
+  .boardHead{font-size:15px; font-weight:700; color:var(--ink); margin:2px 2px 8px; display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;}
+  .boardHead .count{font-size:12.5px; font-weight:600; color:var(--muted2); background:var(--gray-bg); border-radius:999px; padding:0 8px;}
+  .boardHead .boardSub{font-size:12.5px; font-weight:400; color:var(--muted2);}
+  .boardCol .taskRow .rowMeta.mobHide{display:none;}          /* 欄窄：專案名、對象收起來，只留色點與期限 */
+  .boardCol .taskRow .rowTitle{min-width:48%;}
+  .boardCol .taskRow .rowDue{flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis;}
   .emptyLine{font-size:12.5px; color:var(--muted2); line-height:1.6; padding:0 2px 10px 24px;}
   .v55Note{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13.5px; line-height:1.6; color:var(--ink);
     background:var(--accent-soft); border-radius:12px; padding:9px 14px; margin-bottom:10px;}
   @media (pointer:coarse){ .taskRow{min-height:50px;} .taskRow .rowDone{width:30px; height:30px;} }
   @media (min-width:1100px){
     /* 卡片密度：雙欄改「橫向排序」的格線（以前是報紙式直排，看不出哪張接哪張） */
-    .secGrid:not(.rows){columns:auto !important; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 12px; align-items:start;}
+    .secGrid:not(.rows){columns:auto !important; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 12px; align-items:stretch;}
+    /* v56：同一列兩張卡等高、標籤與動作列貼底——以前各自高度不同，卡片之間的空隙忽大忽小 */
+    .secGrid:not(.rows) > .task{margin-bottom:0; display:flex; flex-direction:column;}
+    .secGrid:not(.rows) > .task > .meta{margin-top:auto; padding-top:7px;}
+    .secGrid:not(.rows) > .task > button{align-self:flex-start;}   /* 直排 flex 會把按鈕拉滿置中，釘回左邊 */
     .secGrid:not(.rows):not(:has(.task:nth-child(2))){grid-template-columns:minmax(0,1fr);}
   }
   @media (min-width:601px){
     /* 輸入卡平常縮成一行，點進去才展開內文與期限選項（JS 加 .open／.hasText） */
-    .inputCard:not(.open):not(.hasText){display:flex; align-items:center; gap:10px; padding:8px 14px;}
-    .inputCard:not(.open):not(.hasText) .inLabel, .inputCard:not(.open):not(.hasText) #inputBody{display:none;}
-    .inputCard:not(.open):not(.hasText) #input{flex:1; min-height:34px; height:34px; resize:none;}
-    .inputCard:not(.open):not(.hasText) .previewRow{margin-top:0; min-height:0; flex:none;}
-    .inputCard:not(.open):not(.hasText) .inputActions{margin-top:0;}
+    .inputCard.taskInput:not(.open):not(.hasText){display:flex; align-items:center; gap:10px; padding:8px 14px;}
+    .inputCard.taskInput:not(.open):not(.hasText) .inLabel, .inputCard.taskInput:not(.open):not(.hasText) #inputBody{display:none;}
+    .inputCard.taskInput:not(.open):not(.hasText) #input{flex:1; min-height:34px; height:34px; resize:none;}
+    .inputCard.taskInput:not(.open):not(.hasText) .previewRow{margin-top:0; min-height:0; flex:none;}
+    .inputCard.taskInput:not(.open):not(.hasText) .inputActions{margin-top:0;}
   }
   .previewRow .hint.addedOk{display:inline-block; font-size:13.5px; font-weight:700; color:var(--green); background:var(--green-bg);
     border-radius:999px; padding:3px 12px;}
@@ -494,24 +508,38 @@
   .mdCheck{opacity:.85;}
   .monoText .task .detail, .monoText .stickyNote .nText{font-family:Consolas,'Courier New',monospace; font-size:13.5px;}
   /* 記事本 */
-  .noteGrid{display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start;}
+  /* v56 便利貼牆：改成對齊的格線——每張等寬、同列等高、間距一致（以前每張大小各自為政，牆面參差又留一堆空白） */
+  .noteGrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); gap:14px; align-items:stretch; grid-auto-flow:dense;}
+  .stickyNote .nFoot .nDot{opacity:1 !important; border-color:rgba(0,0,0,.28);}   /* 換色圓點常駐可見——以前滑過才出現，日期看起來像歪一格 */
+  .noteGrid > .stickyNote{width:auto !important; max-width:none;}
+  .noteGrid > .stickyNote.szM{grid-column:span 2;}
+  .noteGrid > .stickyNote.szL, .noteGrid > .journalCard{grid-column:1 / -1;}
+  @media (max-width:600px){ .noteGrid{grid-template-columns:minmax(0,1fr);} .noteGrid > .stickyNote.szM{grid-column:auto;} }
   .stickyNote{
     color:#4a4038;   /* 便利貼永遠是亮色紙，字固定深色（深色模式也是） */
-    width:228px; padding:12px 13px 9px; border-radius:4px 16px 16px 16px;
-    box-shadow:0 2px 6px rgba(180,140,100,.15); font-size:13.5px; line-height:1.6;
+    width:228px; padding:14px 15px 10px; border-radius:4px 16px 16px 16px; position:relative;
+    box-shadow:0 2px 6px rgba(180,140,100,.15); font-size:14.5px; line-height:1.7;
     transition:box-shadow .15s;
     /* 抓右下角可以直接拉大小（拉過的尺寸會記住） */
-    resize:both; overflow:auto; min-width:170px; min-height:84px; max-width:100%;
+    resize:vertical; overflow:auto; min-width:170px; min-height:96px; max-width:100%;
     display:flex; flex-direction:column;
     /* 原本的微旋轉會讓文字在部分螢幕發糊，為了易讀性拿掉（歪斜感改用圓角表現） */
   }
   .stickyNote .nText{flex:1;}
   .stickyNote:nth-child(even){border-radius:16px 4px 16px 16px;}
   .stickyNote:hover{box-shadow:0 4px 10px rgba(180,140,100,.25);}
-  .stickyNote.szM{width:340px; font-size:13.5px;}
+  .stickyNote.szM{width:340px; font-size:14.5px;}
   .stickyNote.szL{width:100%; font-size:15px;}
   .stickyNote .nText{white-space:pre-wrap; word-break:break-word; cursor:text; min-height:20px;}
-  .stickyNote .nFoot{display:flex; flex-wrap:wrap; row-gap:2px; align-items:center; gap:6px; margin-top:auto; padding-top:8px; font-size:11.5px; color:rgba(0,0,0,.35);}
+  .stickyNote .nFoot{display:flex; flex-wrap:wrap; row-gap:2px; align-items:center; gap:6px; margin-top:auto; padding-top:10px; font-size:12px; color:rgba(0,0,0,.55);}
+  /* v56：動作鈕收成一條浮動工具列（滑過/聚焦才浮出來、不佔版面）——以前 10 顆隱形按鈕佔兩行，便利貼底下才會一大片空白 */
+  .nTools{display:flex; flex-wrap:wrap; gap:1px; align-items:center;}
+  @media (hover:hover){
+    .stickyNote .nTools{position:absolute; left:8px; right:8px; bottom:6px; justify-content:flex-end; padding:3px 4px; border-radius:10px;
+      background:rgba(255,255,255,.92); box-shadow:0 1px 5px rgba(0,0,0,.14); opacity:0; pointer-events:none; transition:opacity .12s;}
+    .stickyNote:hover .nTools, .stickyNote:focus-within .nTools{opacity:1; pointer-events:auto;}
+    .stickyNote .nTools button{opacity:1 !important;}
+  }
   .stickyNote .nFoot .spacer{flex:1;}
   .stickyNote .nFoot button{background:none; padding:3px 6px; font-size:14px; color:rgba(0,0,0,.4); border-radius:6px;}
   .stickyNote .nFoot button:hover{color:var(--red);}
@@ -873,7 +901,7 @@
     <main class="mainCol">
   <div class="stats" id="stats"></div>
 
-  <div class="inputCard">
+  <div class="inputCard taskInput">
     <div class="inLabel">📌 標題</div>
     <textarea id="input" placeholder="記一件事，例如「下週三前回覆報名信」——打完按 Enter"></textarea>
     <div class="inLabel">📝 內文<span class="inHint">選填｜Enter 換行｜[小橘 小黑] 或 []小橘 []小黑＝建立核選框</span></div>
@@ -2356,8 +2384,8 @@ function renderList(){
     hint.textContent='（此排序下 ⠿ 拖曳不生效）';
     srow.appendChild(hint);
   }
-  const dt=document.createElement('span'); dt.className='densToggle'; dt.title='任務的呈現密度：列＝一行一件、點開看細節；卡片＝每件都是完整卡片';
-  [['row','☰ 列'],['card','▦ 卡片']].forEach(([k,l])=>{
+  const dt=document.createElement('span'); dt.className='densToggle'; dt.title='任務的呈現方式：列＝一行一件、點開看細節；卡片＝每件都是完整卡片；看板＝依「我要做／等別人／擱著」分三欄';
+  [['row','☰ 列'],['card','▦ 卡片'],['board','▥ 看板']].forEach(([k,l])=>{
     const b=document.createElement('button'); b.textContent=l; b.id='dens_'+k;
     if (taskDensity()===k) b.className='on';
     b.onclick=()=>{ settings.taskDensity=k; saveSettings(); openCards.clear(); render(); };
@@ -2376,7 +2404,27 @@ function renderList(){
     nt.appendChild(tx); nt.appendChild(ok); secs.appendChild(nt);
   }
   const flat=FLAT_SORTS[sortMode];
-  if (flat){
+  if (taskDensity()==='board'){
+    // v56 看板：依「狀態」分三欄（時間分組是列/卡片的事）。欄內仍是清單列，點開才是卡片
+    const mine = flat ? active.filter(t=>!isStaleOverdue(t)).sort(flat.cmp) : [...fire, ...week, ...later.filter(t=>!isStaleOverdue(t))];
+    const board=document.createElement('div'); board.className='boardGrid';
+    const col=(title,sub,list,emptyMsg,cls)=>{
+      const c=document.createElement('div'); c.className='boardCol'+(cls?' '+cls:'');
+      const h=document.createElement('div'); h.className='boardHead';
+      h.innerHTML=esc(title)+' <span class="count">'+list.length+'</span><span class="boardSub">'+esc(sub)+'</span>';
+      c.appendChild(h);
+      if (list.length){
+        const g=document.createElement('div'); g.className='secGrid rows';
+        list.forEach(t=>g.appendChild(renderTaskItem(t)));
+        c.appendChild(g);
+      } else { const e=document.createElement('div'); e.className='emptyLine'; e.style.paddingLeft='2px'; e.textContent=emptyMsg; c.appendChild(e); }
+      return c;
+    };
+    board.appendChild(col('🙋 我要做','球在我這邊', mine, '沒有排隊中的任務喵🐾'));
+    board.appendChild(col('⏳ 等別人','寄出了、等對方回覆', waiting, '寄出信之後在任務上按「⏳ 等回覆」，就會排到這欄。','colWait'));
+    board.appendChild(col('🕰 擱著','逾期超過 7 天，找時間重排', stale, '沒有擱著的事，很好喵。','colStale'));
+    secs.appendChild(board);
+  } else if (flat){
     secs.appendChild(section(flat.title, [...active].sort(flat.cmp), '沒有排隊中的任務喵🐾'));
   } else {
   // v55：空的時間分組不佔版面（以前空分區會放一隻大貓，第一件任務被擠到螢幕外）
@@ -2385,7 +2433,7 @@ function renderList(){
   secs.appendChild(section('🐢 之後與沒有期限', later, '沒有排隊中的任務喵🐾'));
   if (stale.length) secs.appendChild(section('🕰 擱了一陣子（逾期超過 7 天——點開重排：改期限、改成無期限或封存都可以）', stale, '', '', true));
   }
-  secs.appendChild(section('⏳ 等對方回覆（到追蹤日會變紅提醒你催）', waiting, '空的喵。寄出信之後在卡片上按「⏳ 等回覆」，任務就會移來這裡幫你排催辦', 'waitSec'));
+  if (taskDensity()!=='board') secs.appendChild(section('⏳ 等對方回覆（到追蹤日會變紅提醒你催）', waiting, '空的喵。寄出信之後在卡片上按「⏳ 等回覆」，任務就會移來這裡幫你排催辦', 'waitSec'));
 
   const det=document.createElement('details');
   det.className='doneSection';
@@ -2408,13 +2456,13 @@ function renderList(){
   secs.appendChild(det);
 }
 
-function taskDensity(){ return (settings && settings.taskDensity)==='card' ? 'card' : 'row'; }
+function taskDensity(){ const v=settings && settings.taskDensity; return (v==='card'||v==='board') ? v : 'row'; }
 /* v55：清單列模式下，正在編輯／開著任何行內選單的任務一律以完整卡片呈現，避免操作到一半縮回去 */
 function taskIsOpen(t){
   return openCards.has(t.id) || editingTitle.has(t.id) || editingText.has(t.id) || openPicker.has(t.id) || openSubs.has(t.id)
       || openDue.has(t.id) || openWait.has(t.id) || openCatPick.has(t.id) || openComments.has(t.id);
 }
-function renderTaskItem(t){ return (taskDensity()==='card' || taskIsOpen(t)) ? taskCard(t) : taskRow(t); }
+function renderTaskItem(t){ return (taskDensity()==='card' || taskIsOpen(t)) ? taskCard(t) : taskRow(t); }   // 列與看板都用「列→點開才是卡」
 function taskRow(t){
   const row=document.createElement('div');
   row.className='taskRow'; row.dataset.tid=t.id; row.tabIndex=0;
@@ -2460,7 +2508,8 @@ function taskRow(t){
       const du=document.createElement('span');
       const stale=isStaleOverdue(t);
       du.className='rowDue '+(stale?'stale':'lv-'+u.level);
-      du.textContent = stale ? '🕰 擱了 '+(-daysUntil(fromISO(t.due)))+' 天' : u.label.replace(/^[🔴🟠🟡🔥]\s*/u,'')+((t.due&&t.time)?' ⏰'+t.time:'');
+      if (stale) du.title='原訂 '+fmtDate(fromISO(t.due))+'，已經擱了 '+(-daysUntil(fromISO(t.due)))+' 天';
+      du.textContent = stale ? '🕰 '+(-daysUntil(fromISO(t.due)))+' 天' : u.label.replace(/^[🔴🟠🟡🔥]\s*/u,'')+((t.due&&t.time)?' ⏰'+t.time:'');
       row.appendChild(du);
     }
   }
@@ -2519,7 +2568,7 @@ function section(title, list, emptyMsg, cls, defFold){
     const e=document.createElement('div'); e.className='emptyLine'; e.textContent=emptyMsg;   // v55：空狀態縮成一行小字
     d.appendChild(e);
   } else {
-    const g=document.createElement('div'); g.className='secGrid'+(taskDensity()==='row'?' rows':'');
+    const g=document.createElement('div'); g.className='secGrid'+(taskDensity()!=='card'?' rows':'');
     list.forEach(t=>g.appendChild(renderTaskItem(t)));
     d.appendChild(g);
   }
@@ -2621,7 +2670,7 @@ function taskCard(t){
   card.dataset.tid=t.id;   // 反黑加註解要靠它找回是哪張卡
   if (justAddedId && t.id===justAddedId){ card.classList.add('justAdded'); setTimeout(()=>{ if (justAddedId===t.id) justAddedId=null; },1900); }
   bindSwipeDone(card, t);   // 📱 往右滑＝完成（v55 起與清單列共用）
-  if (taskDensity()==='row' && t.status!=='done' && module==='tasks' && view==='list'){
+  if (taskDensity()!=='card' && t.status!=='done' && module==='tasks' && view==='list'){
     const cb=document.createElement('button'); cb.className='rowCollapse'+((t.comments&&t.comments.length)?' shift':'');
     cb.textContent='▴ 收合'; cb.title='收回成一行';
     cb.onclick=()=>{ [openCards,openPicker,openSubs,openDue,openCatPick,openComments].forEach(x=>x.delete(t.id)); render(); };
@@ -5244,7 +5293,7 @@ function renderNotes(){
   ta.oninput=()=>{ notesDraft=ta.value; };
   const act=document.createElement('div'); act.className='inputActions';
   const tip=document.createElement('span'); tip.className='tip'; tip.textContent='臨時的事丟這裡，之後要變正式任務再搬去任務區喵';
-  const add=document.createElement('button'); add.className='btnAdd'; add.textContent='貼上便利貼 📒';
+  const add=document.createElement('button'); add.className='btnAdd'; add.textContent='貼上便利貼 📒'; add.style.whiteSpace='nowrap';
   const addNote=()=>{
     const v=ta.value.trim(); if(!v) return;
     notes.unshift({id:uid(), text:v, color:NOTE_COLORS[notes.length%NOTE_COLORS.length],
@@ -5305,9 +5354,9 @@ function renderNotesGrid(wrap){
       card.className='journalCard';
     } else {
       card.className='stickyNote '+(n.color||'n-yellow')+(n.size==='m'?' szM':n.size==='l'?' szL':'');
-      // 手動拉過的尺寸優先於 ⤢ 的三段預設
-      if (n.w) card.style.width=n.w+'px';
-      if (n.h) card.style.height=n.h+'px';
+      // v56：寬度交給格線（小=1 欄、中=2 欄、大=整列）；只有在新版「往下拉高」過的才套用高度（n.hv===2）。
+      // 舊版自由拉的寬高資料保留不刪，但不再套用——那是牆面參差不齊的主因
+      if (n.h && n.hv===2) card.style.minHeight=n.h+'px';
       // 抓右下角拉完＝記住新尺寸（只在右下角落下手才算，避免一般點擊誤存）
       card.addEventListener('pointerdown',e=>{
         const r=card.getBoundingClientRect();
@@ -5317,7 +5366,7 @@ function renderNotesGrid(wrap){
           window.removeEventListener('mouseup',up);
           setTimeout(()=>{
             const w=Math.round(card.offsetWidth), h=Math.round(card.offsetHeight);
-            if (w>=170 && h>=84 && (n.w!==w || n.h!==h)){ n.w=w; n.h=h; saveNotes(); }
+            if (h>=96 && n.h!==h){ n.h=h; n.hv=2; saveNotes(); }
           },0);
         };
         window.addEventListener('pointerup',up);
@@ -5425,8 +5474,8 @@ function renderNotesGrid(wrap){
       +((n.updated && n.updated!==n.created) ? '・✎ '+n.updated.slice(5).replace('-','/') : '');
     dt.title='🗓 製作日期'+((n.updated&&n.updated!==n.created)?'；✎ 最後編輯 '+n.updated.replace(/-/g,'/'):'');
     const sz=document.createElement('button'); sz.innerHTML=riIcon('expand');
-    sz.title='換大小（小 → 中 → 大）。也可以直接抓便利貼右下角用拉的';
-    sz.onclick=()=>{ delete n.w; delete n.h; n.size = n.size==='s'?'m':n.size==='m'?'l':'s'; saveNotes(); renderNotes(); };
+    sz.title='換寬度（1 欄 → 2 欄 → 整列）。高度可以抓右下角往下拉';
+    sz.onclick=()=>{ delete n.w; delete n.h; delete n.hv; n.size = n.size==='s'?'m':n.size==='m'?'l':'s'; saveNotes(); renderNotes(); };
     const jm=document.createElement('button'); jm.innerHTML= journal?riIcon('sticky'):riIcon('journal');
     jm.title= journal ? '收回便利貼牆（變回小張便利貼）' : '轉成手札（全寬大張、第一行當標題，適合長內容）';
     jm.onclick=()=>{
@@ -5453,8 +5502,11 @@ function renderNotesGrid(wrap){
       saveNotes(); renderNotes();
       catSay('唰——撕下來丟進垃圾桶了！要撿回來就到下面的 🗑 垃圾桶喵',2800);
     };
-    if (journal) foot.append(sp,dt,jm,cp,pj,ed2,toTask,att,arc,del);
-    else foot.append(sp,dt,sz,jm,cp,pj,ed2,toTask,att,arc,del);
+    const tools=document.createElement('span'); tools.className='nTools';
+    if (journal) tools.append(jm,cp,pj,ed2,toTask,att,arc,del);
+    else tools.append(sz,jm,cp,pj,ed2,toTask,att,arc,del);
+    if (journal) foot.append(sp,dt,tools);      // 手札：照舊排在同一列
+    else { foot.append(dt,sp); card.appendChild(tools); }   // 便利貼：日期靠左，工具列浮在底部
     card.appendChild(foot);
     // 📂 專案選單（展開時）
     if (catPickNote===n.id){
