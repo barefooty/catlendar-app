@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
 <meta name="theme-color" content="#9aab60">
-<script>window.APP_BUILD='v59-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
+<script>window.APP_BUILD='v60-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -602,6 +602,39 @@
   .pbInfo a{color:var(--blue); text-decoration:none;}
   .pbInfo a:hover{text-decoration:underline;}
   .pbNote{font-size:12.5px; color:var(--sub); width:100%; padding-left:2px;}
+
+  /* ── v60 總月曆／任務日曆：整個月塞進一個螢幕（以前每格 144px，六列要捲兩屏）；週末淡化。只作用在桌機，手機週列表不動 ── */
+  @media (min-width:601px){
+    #bigcalPane .calCell, #calendar .calCell{min-height:clamp(60px, calc((100vh - 350px) / 6), 150px);}
+    #bigcalPane .calCell.wkend:not(.today){background:var(--bg);}
+    #bigcalPane .calCell.wkend .dnum{color:var(--muted2);}
+    #bigcalPane .calGrid .wd{font-weight:600;}
+    #bigcalPane .calCard{padding-top:10px;}
+    #bigcalPane .calHead{margin-bottom:6px;}
+  }
+  /* ── v60 記帳：上方三格統計、金額數字靠右對齊 ── */
+  .moneyStats{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-bottom:12px;}
+  .moneyStats > div{background:var(--cell-bg); border:1.5px solid var(--line); border-radius:12px; padding:8px 14px; display:flex; flex-direction:column; gap:1px;}
+  .moneyStats small{font-size:12.5px; color:var(--muted2);}
+  .moneyStats b{font-size:20px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .moneyStats .warn b{color:var(--orange);}
+  .moneyTable th.num, .moneyTable td.num{text-align:right; font-variant-numeric:tabular-nums; padding-right:18px;}
+  .moneyTable tbody tr:hover td{background:var(--cell-bg);}
+  /* ── v60 番茄鐘：寬螢幕左計時、右番茄園 ── */
+  @media (min-width:1100px){
+    #pomoPane{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:14px; align-items:start;}
+    #pomoPane > .trkCard{margin-bottom:0;}
+  }
+  /* ── v60 使用指南：章節快速跳轉＋內文長文規格 ── */
+  .guideToc{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+  .guideToc .memberTag{font-size:12.5px;}
+  .trkCard.guideCard{padding:9px 14px; margin-bottom:8px;}
+  .guideCard .trkHead{cursor:pointer;}
+  .guideCard .tTitle{font-size:15px;}
+  .guideCard.isOpen{padding-bottom:16px;}
+  .guideBody{margin-top:10px; padding-left:12px; border-left:3px solid var(--line); font-size:15px; line-height:1.85; color:var(--ink); max-width:50em;}
+  .guideBody .mdTable{font-size:13.5px;}
+  .guideNew{display:inline-block; font-size:12px; font-weight:700; color:var(--on-accent,#fff); background:var(--accent); border-radius:999px; padding:0 8px; margin-left:6px; vertical-align:1px;}
 
   /* ── v59 首頁：隨手記一筆＋每張卡一個大數字＋等高三欄 ── */
   .homeQuick{display:flex; gap:8px; align-items:center; margin-top:12px; cursor:auto;}
@@ -5080,7 +5113,7 @@ function renderBigCal(){
   const todayISO=toISO(new Date());
   const mkCell=(iso, dnumText)=>{
     const c=document.createElement('div');
-    c.className='calCell'+(iso===todayISO?' today':'')+(iso===bcSel?' sel':'');
+    c.className='calCell'+(iso===todayISO?' today':'')+(iso===bcSel?' sel':'')+([0,6].includes(fromISO(iso).getDay())?' wkend':'');
     const dn=document.createElement('div'); dn.className='dnum'; dn.textContent=dnumText;
     const wdT=document.createElement('span'); wdT.className='calWd';
     wdT.textContent='週'+WD[fromISO(iso).getDay()];   // 手機週列表用，桌機隱藏
@@ -6998,9 +7031,16 @@ const GUIDE_SECTIONS=[
   '<b>Catlendar 是一個全部存在你電腦裡的個人工作站</b>——不用帳號、不用網路，關掉再開資料都在。<br><br>'
   +'1️⃣ 左邊導覽列切換功能頁。剛開始只有「首頁／任務小窩／設定」，其他功能到 <b>⚙️ 設定 → 🧩 功能開關</b> 打開（或用 🎭 角色範本一鍵配好）。<br>'
   +'2️⃣ 左下角 <b>🏢 工作 ⇄ 🏠 私人</b> 是兩個獨立空間，資料完全分開；再點一下變 🌍 總覽（唯讀合併看）。<br>'
-  +'3️⃣ 東西太多記不住沒關係，回來翻這本指南就好😸'},
- {id:'task', t:'🏡 任務小窩：標題＋內文分開填', h:
-  '新增區有兩個欄位：<b>📌 標題</b>（必填）與 <b>📝 內文</b>（選填，Enter 換行）。<br>'
+  +'3️⃣ <b>首頁可以直接記事</b>：「今天先看這裡」卡片裡的輸入列打字按 Enter，就建好任務（「下週三前…」這類期限照樣會解析），不用先切到任務小窩。<br>'
+  +'4️⃣ 東西太多記不住沒關係，回來翻這本指南就好😸'},
+ {id:'task', isNew:true, t:'🏡 任務小窩：一行一件、點開看細節', h:
+  '<b>三種呈現方式</b>（工具列右側「☰ 列／▦ 卡片／▥ 看板」，選了會記住）：<br>'
+  +'・<b>☰ 列</b>（預設）＝一行一件。最左邊的<b>圓圈點一下就完成</b>；<b>點那一列</b>展開成完整卡片（內文、勾選清單、標籤、動作鈕都在），右上「▴ 收合」收回。<br>'
+  +'・<b>▦ 卡片</b>＝每件都是完整卡片，雙欄橫向排序；超過 3 項的勾選清單先收成進度條，按「▾ 展開清單」。<br>'
+  +'・<b>▥ 看板</b>＝依狀態分三欄：🙋 我要做／⏳ 等別人／🕰 擱著。按「⏳ 等回覆」會移到第二欄。<br>'
+  +'<b>分組</b>（智慧分區）：🔥 現在要做／📅 一週內／🐢 之後與沒有期限／🕰 擱了一陣子（逾期超過 7 天、沒標急的收在這，預設收合）；空的分組不顯示。<br>'
+  +'<b>長內文</b>：卡片上按「▾ 看內文」，超過 6 行會先收起來，按「▾ 展開全文」看完整內容。<br><br>'
+  +'<b>新增區</b>平常縮成一行「記一件事…」，點進去才展開成兩個欄位：<b>📌 標題</b>（必填）與 <b>📝 內文</b>（選填，Enter 換行，會跟著內容長高）。<br>'
   +'輸入時貓咪會順便認得這些寫法：<br>'
   +'<table class="mdTable" style="margin:8px 0;">'
   +'<tr><th>你打的字</th><th>自動變成</th></tr>'
@@ -7043,9 +7083,10 @@ const GUIDE_SECTIONS=[
   +'<code>| 學校 | 狀態 |</code><br><code>| 台大 | 已回 |</code><br><code>| 清大 | 催中 |</code><br>'
   +'標題和內容之間可以加 <code>|---|---|</code> 分隔行（不加也可以，第一行自動當表頭）。<br>'
   +'<span style="color:var(--sub);">不喜歡自動排版？⚙️ 設定 → 📝 文字顯示 可以關掉 Markdown。</span>'},
- {id:'notes', t:'📒 便利貼與 📔 手札', h:
+ {id:'notes', isNew:true, t:'📒 便利貼與 📔 手札', h:
   '<b>便利貼</b>＝隨手記。想到什麼丟上來，之後可以：📮 轉成正式任務｜📎 貼進某個任務的內文｜📂 掛到專案。<br><br>'
-  +'<b>調大小</b>：抓便利貼<b>右下角直接拉</b>，拉多大記多大；或按 ⤢ 在小/中/大三段切換。<br>'
+  +'<b>動作鈕</b>（編輯、轉任務、複製、換大小、封存、刪除…）平常收起來，<b>滑到那張便利貼上</b>才會從底部浮出一條工具列；手機上則常駐顯示。左下角的小圓點點一下換顏色。<br>'
+  +'<b>調大小</b>：便利貼牆是對齊的格線——按工具列的 ⤢ 切換<b>寬度</b>「1 欄／2 欄／整列」；<b>高度</b>抓右下角往下拉，拉多高記多高。<br>'
   +'<b>內容變長了？</b>按 📔 把它搬進「手札」——變成全寬大卡片、第一行自動當標題、支援完整排版，長筆記舒服很多。按 📒 隨時搬回便利貼牆。<br>'
   +'<b>刪掉的便利貼</b>先進 🗑 垃圾桶（30 天內可撿回，天數可在設定調）。'},
  {id:'proj', t:'📁 專案：一個分類貫穿所有功能', h:
@@ -7054,35 +7095,37 @@ const GUIDE_SECTIONS=[
   +'用「<b>＋ 直接新增</b>」列在專案裡直接加任務/便利貼/說明書/網站，自動掛好專案不用跳頁｜'
   +'按 🧱 版面自訂要顯示哪些區塊。<br>'
   +'新增/改名/換色專案請到 <b>⚙️ 設定</b> 的類別管理。'},
- {id:'track', t:'📦 追蹤項目：等一群人交東西', h:
+ {id:'track', isNew:true, t:'📦 追蹤項目：等一群人交東西', h:
   '要跟一群人（各校窗口、全班、各單位）收東西時用這個。頁面分兩個分頁：<br>'
   +'<b>📇 名單</b>＝可重複使用的資料庫——成員資料（試算表式直接改）、⬇️ 下載範本／📥 上傳 CSV 一鍵匯入、'
   +'📞 綁電話簿聯絡人（建追蹤自動帶入）、🚫 停用成員、🔍 看某人在所有追蹤的狀況、參與哪些追蹤一目瞭然。<br>'
   +'<b>📦 追蹤項目</b>＝進行中的作業——用名單建一張勾選表，誰交了就打勾。'
-  +'統一或個別期限｜「回傳」兩字可換成繳交/發布｜卡片右上 ⚙ 表格設定：編號欄（⠿ 拖曳排序）/📞 聯絡欄/📊 匯總欄位｜逾期自動標紅。'},
+  +'統一或個別期限｜「回傳」兩字可換成繳交/發布｜卡片右上 ⚙ 表格設定：編號欄（⠿ 拖曳排序）/📞 聯絡欄/📊 匯總欄位。<br>'
+  +'<b>逾期</b>的列左緣出現一條紅線、期限變紅字（不再整列名字變紅）。<b>沒資料的格子</b>（＋選聯絡人、＋備註、退出計畫）平常不顯示，<b>滑到那一列才浮現</b>；手機上常駐顯示。'},
  {id:'dates', t:'🗓️ 總月曆與日期的意思', h:
-  '總月曆把所有功能的日期疊在同一本月曆上看（圖層可在右上角開關）。<br><br>'
+  '總月曆把所有功能的日期疊在同一本月曆上看（圖層用月曆上方那排按鈕開關）；整個月會自動縮放塞進一個螢幕，週末底色較淡。<br><br>'
   +'<b>日期語意（很重要，不會搞混）：</b><br>'
   +'• 任務的日期＝<b>到期日</b>（deadline）<br>'
   +'• 期間任務（8/1到8/15）＝整段期間顯示小圖示，最後一天紅底線<br>'
   +'• ⏳ 追蹤日＝該去催對方的日子<br>'
   +'• ✓ 完成日＝實際做完那天'},
- {id:'diary', t:'📓 日誌：今天做了什麼、學了什麼', h:
-  '<b>總月曆看未來（接下來要做什麼），日誌看過去（我做了什麼）。</b>一天一頁，分兩半：<br><br>'
-  +'<b>🤖 上半・系統幫你記</b>：完成的任務與子任務、收到的回傳、習慣打卡、番茄收成、寫下的註解、記的帳、便利貼/說明書異動——'
+ {id:'diary', isNew:true, t:'📓 日誌：今天做了什麼、學了什麼', h:
+  '<b>總月曆看未來（接下來要做什麼），日誌看過去（我做了什麼）。</b>一天一頁，寬螢幕左右兩欄（窄螢幕與手機上下排）：<br><br>'
+  +'<b>🤖 右欄・系統幫你記</b>：完成的任務與子任務、收到的回傳、習慣打卡、番茄收成、寫下的註解、記的帳、便利貼/說明書異動——'
   +'全部從現有紀錄即時彙整，你什麼都不用做；⚙ 可以挑要顯示哪些。<br>'
-  +'<b>✍️ 下半・自由寫</b>：「今天做了什麼」＋「📚 今天學到什麼」兩欄（支援 Markdown）＋今日心情 emoji，'
+  +'<b>✍️ 左欄・自由寫</b>：「今天做了什麼」＋「📚 今天學到什麼」兩欄（支援 Markdown）＋今日心情（閱讀畫面點標題旁的「＋ 心情」標籤來選；編輯畫面整列直接顯示），'
   +'<b>邊打邊自動儲存</b>（右上會亮 ✓）。寫完按「<b>✔ 完成</b>」會切成<b>排版好的閱讀畫面</b>'
   +'（Markdown 標題/清單都會呈現）；要修改再按「✏️ 編輯」。輸入框拖拉調過的高度會記住。<br><br>'
   +'翻頁：‹ › 逐日翻、點 14 天快速條、或直接挑日期；有寫的天會亮 ●。<br>'
   +'<b>📋 近7天</b>＝把一週的手寫＋自動摘要彙整成純文字，直接貼週報。<br>'
   +'總月曆點過去的日期，也有「📓 看這天的日誌」可以直接跳過來。'},
  {id:'mods', t:'🧩 其他功能速覽', h:
-  '<b>📞 電話簿</b>：聯絡人＋所屬專案＋職稱，名字打幾個字全工具自動完成。<br>'
+  '<b>📞 電話簿</b>：聯絡人＋所屬專案＋職稱，名字打幾個字全工具自動完成。一人一行、電話與 Email 對齊；要寫備註按那一列右側的 📝。<br>'
   +'<b>🔖 網站收藏</b>：常用網站存起來，點名字直接開。<br>'
   +'<b>📖 說明書</b>：自己的 SOP 收納庫——「每次都要重想一遍」的流程寫下來，下次搜標題 10 秒查到。支援表格與排版。<br>'
-  +'<b>💰 記帳</b>：代墊請款與私人記帳，依月分組小計。<br>'
-  +'<b>🌱 習慣打卡</b>：每日/指定星期的習慣，連續天數與熱力圖，跟任務完全分開。<br>'
+  +'<b>💰 記帳</b>：代墊請款與私人記帳，依月分組小計；表格上方三格統計（本月支出／未請款／合計）。<br>'
+  +'<b>🌱 習慣打卡</b>：每日/指定星期的習慣，連續天數與熱力圖，跟任務完全分開；一天要打多次的習慣有今日進度條。<br>'
+  +'<b>⚙️ 設定</b>：分成四組——🎨 外觀／🧩 功能與習慣／📂 分類／🛡 資料與同步，點卡片標題展開。<br>'
   +'<b>🍅 番茄鐘</b>：專注計時器。<br>'
   +'<b>🗄️ 封存</b>：做完捨不得刪的任務/追蹤表收進來，依專案分資料夾。<br>'
   +'<b>📈 股票</b>：手動記錄的持股小帳本。'},
@@ -7100,20 +7143,34 @@ function renderGuide(){
   wrap.innerHTML='';
   const head=document.createElement('div'); head.className='trkCard';
   head.innerHTML='<div class="trkHead"><span class="tTitle">📘 使用指南</span></div>'
-    +'<div class="setNote">所有功能的說明都收在這裡，點標題展開。忘記怎麼用就回來翻，不用怕忘喵。</div>';
+    +'<div class="setNote">所有功能的說明都收在這裡。點下面的章節直接跳過去，或點標題展開；忘記怎麼用就回來翻，不用怕忘喵。</div>';
+  // v60：章節快速跳轉（以前 11 個章節只能一張張找）
+  const toc=document.createElement('div'); toc.className='guideToc';
+  const openSec=id=>{ uiGuide.open=id; renderGuide();
+    setTimeout(()=>{ const el=document.getElementById('guide_'+id); if (el) el.scrollIntoView({behavior:'smooth', block:'start'}); },0); };
+  GUIDE_SECTIONS.forEach(s=>{
+    const b=document.createElement('button'); b.className='memberTag'+(uiGuide.open===s.id?' on':'');
+    b.textContent=s.t.split('：')[0]; b.title=s.t;
+    b.onclick=()=>openSec(s.id);
+    toc.appendChild(b);
+  });
+  head.appendChild(toc);
   wrap.appendChild(head);
   GUIDE_SECTIONS.forEach(s=>{
-    const c=document.createElement('div'); c.className='trkCard';
+    const isOpen=uiGuide.open===s.id;
+    const c=document.createElement('div'); c.className='trkCard guideCard'+(isOpen?' isOpen':''); c.id='guide_'+s.id;
     const h=document.createElement('div'); h.className='trkHead';
+    h.tabIndex=0; h.setAttribute('role','button'); h.setAttribute('aria-expanded', isOpen?'true':'false');
     const t=document.createElement('span'); t.className='tTitle';
-    t.style.cursor='pointer';
-    t.textContent=(uiGuide.open===s.id?'▾ ':'▸ ')+s.t;
-    t.onclick=()=>{ uiGuide.open = uiGuide.open===s.id ? null : s.id; renderGuide(); };
+    t.textContent=(isOpen?'▾ ':'▸ ')+s.t;
+    if (s.isNew){ const nb=document.createElement('span'); nb.className='guideNew'; nb.textContent='有更新'; t.appendChild(nb); }
+    const toggle=()=>{ uiGuide.open = isOpen ? null : s.id; renderGuide(); };
+    h.onclick=toggle;
+    h.onkeydown=e=>{ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } };
     h.appendChild(t);
     c.appendChild(h);
-    if (uiGuide.open===s.id){
-      const b=document.createElement('div');
-      b.style.cssText='margin-top:10px;font-size:13.5px;line-height:1.8;';
+    if (isOpen){
+      const b=document.createElement('div'); b.className='guideBody';
       b.innerHTML=s.h;
       c.appendChild(b);
     }
@@ -7845,8 +7902,8 @@ function renderMoney(){
   }
   const g=document.createElement('div'); g.className='trkCard';
   const tw=document.createElement('div'); tw.className='tblWrap';
-  const tb=document.createElement('table'); tb.className='trkTable';
-  tb.innerHTML='<thead><tr>'+(inAllView()?'<th></th>':'')+'<th>日期</th><th>說明</th><th>金額</th><th>數量</th><th>小計</th><th>類型／請款</th><th></th></tr></thead>';
+  const tb=document.createElement('table'); tb.className='trkTable moneyTable';
+  tb.innerHTML='<thead><tr>'+(inAllView()?'<th></th>':'')+'<th>日期</th><th>說明</th><th class="num">金額</th><th class="num">數量</th><th class="num">小計</th><th>類型／請款</th><th></th></tr></thead>';
   const body=document.createElement('tbody');
   const nCols=(inAllView()?1:0)+7;
   // 依月份分組（新的在上），每月小計
@@ -7908,9 +7965,9 @@ function renderMoney(){
       cc.style.marginLeft='6px'; cc.textContent=m.cat; c2.appendChild(cc);
     }
     tr.appendChild(c2);
-    const c3=document.createElement('td'); c3.textContent=fmtMoney(m.amount); tr.appendChild(c3);
-    const c4=document.createElement('td'); c4.textContent='×'+(m.qty||1); c4.className='rDue'; tr.appendChild(c4);
-    const c5=document.createElement('td'); c5.textContent=fmtMoney(total); c5.style.fontWeight='600'; tr.appendChild(c5);
+    const c3=document.createElement('td'); c3.className='num'; c3.textContent=fmtMoney(m.amount); tr.appendChild(c3);
+    const c4=document.createElement('td'); c4.textContent='×'+(m.qty||1); c4.className='rDue num'; tr.appendChild(c4);
+    const c5=document.createElement('td'); c5.className='num'; c5.textContent=fmtMoney(total); c5.style.fontWeight='600'; tr.appendChild(c5);
     const c6=document.createElement('td');
     if (m.type==='personal'){
       const ch=document.createElement('span'); ch.className='chip type'; ch.textContent='👛 私人';
@@ -7956,11 +8013,16 @@ function renderMoney(){
   const totalAll=vis.reduce((s,m)=>s+(m.amount||0)*(m.qty||1),0);
   const pend=vis.filter(m=>m.type==='claim'&&!m.claimed);
   const pendSum=pend.reduce((s,m)=>s+(m.amount||0)*(m.qty||1),0);
-  const ft=document.createElement('div');
-  ft.style.cssText='font-size:13.5px;color:var(--sub);margin-top:8px;';
-  ft.innerHTML='共 '+vis.length+' 筆｜合計 <b>'+fmtMoney(totalAll)+'</b>'
-    +(pend.length?('｜<span style="color:var(--orange);font-weight:700">🧾 未請款 '+pend.length+' 筆 '+fmtMoney(pendSum)+'</span>'):'');
-  g.appendChild(ft);
+  // v60：合計從表格最下面的一行小字，搬到表格上方變成三格統計（本月／未請款／全部）
+  const _mon=toISO(new Date()).slice(0,7);
+  const _monSum=vis.filter(m=>(m.date||m.created||'').slice(0,7)===_mon).reduce((s2,m)=>s2+(m.amount||0)*(m.qty||1),0);
+  const ft=document.createElement('div'); ft.className='moneyStats';
+  const mkSt=(label,val,warn)=>{ const dv=document.createElement('div'); if (warn) dv.className='warn';
+    const sm=document.createElement('small'); sm.textContent=label; const bb=document.createElement('b'); bb.textContent=val; dv.append(sm,bb); ft.appendChild(dv); };
+  mkSt('本月支出（'+(+_mon.slice(5))+' 月）', fmtMoney(_monSum));
+  mkSt('🧾 未請款'+(pend.length?'　'+pend.length+' 筆':''), fmtMoney(pendSum), pend.length>0);
+  mkSt('目前列出 '+vis.length+' 筆，合計', fmtMoney(totalAll));
+  g.insertBefore(ft, tw);
   wrap.appendChild(g);
 }
 
@@ -10030,7 +10092,7 @@ function renderPomo(){
   const monthN=Object.entries(pomoData.log).filter(([d])=>d.startsWith(month)).reduce((s,[,n])=>s+n,0);
   const totalN=Object.values(pomoData.log).reduce((s,n)=>s+n,0);
   if (!totalN){
-    const e=document.createElement('div'); e.className='empty';
+    const e=document.createElement('div'); e.className='emptyLine'; e.style.cssText='padding:6px 2px 12px;font-size:13.5px;';
     e.textContent= settings.pomoGarden!==false ? '園子還空空的🌱 完成一顆專注番茄鐘就會種下第一顆！' : '種番茄目前關閉中';
     g.appendChild(e);
   } else {
