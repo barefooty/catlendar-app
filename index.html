@@ -2,13 +2,14 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <!-- 📱 PWA／加入主畫面（file:// 本機無害；manifest 與圖示連結由 JS 在 http(s) 環境才掛上，避免本機 404） -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
-<meta name="theme-color" content="#e8a87c">
+<meta name="theme-color" content="#9aab60">
+<script>window.APP_BUILD='v54-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -104,7 +105,7 @@
     display:flex; align-items:baseline; gap:8px;}
   .inLabel .inHint{font-weight:400; font-size:12px; color:var(--muted2);}
   #input{min-height:38px;}
-  #inputBody{min-height:52px; font-size:13.5px;}
+  #inputBody{min-height:52px; font-size:14.5px; line-height:1.7; max-height:60vh;}
   .previewRow{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:8px; min-height:28px;}
   .previewRow:empty{margin-top:0; min-height:0;}   /* 沒東西就不佔位，框框乾淨 */
   .previewRow .hint{font-size:12.5px; color:var(--sub);}
@@ -256,8 +257,20 @@
   .task .title.done{text-decoration:line-through; color:var(--sub); font-weight:normal;}
   .task .titleEdit{width:100%; font:inherit; font-size:15px; font-weight:600; color:var(--ink);
     border:1.5px solid var(--accent); border-radius:8px; padding:4px 8px; outline:none;}
-  .task .detail{font-size:13.5px; color:var(--muted); line-height:1.6; white-space:pre-wrap; word-break:break-word;
-    margin-top:6px; padding:8px 10px; background:var(--bg); border-radius:10px; max-height:260px; overflow-y:auto;}
+  /* v54 長文排版：正文色 15px/1.75、拿掉灰底與內層捲動（捲中捲很難讀）、左側細線當引導、閱讀寬上限約 40 字；
+     超過 6 行先收合＋漸層遮罩，按「展開全文」才全開 */
+  .task .detail{font-size:15px; color:var(--ink); line-height:1.75; white-space:pre-wrap; word-break:break-word;
+    margin-top:6px; padding:2px 4px 2px 12px; border-left:3px solid var(--line); max-width:40em; position:relative;}
+  .task .detail.clamp{max-height:10.6em; overflow:hidden;}
+  .task .detail.clamp::after{content:''; position:absolute; left:0; right:0; bottom:0; height:3.2em; pointer-events:none;
+    background:linear-gradient(to bottom, transparent, var(--card));}
+  .task .detail b,.task .detail strong{font-weight:700; background:linear-gradient(transparent 58%, var(--accent-soft) 58%); padding:0 1px;}
+  .previewRow .hint.addedOk{display:inline-block; font-size:13.5px; font-weight:700; color:var(--green); background:var(--green-bg);
+    border-radius:999px; padding:3px 12px;}
+  @keyframes v54NewCard{0%{box-shadow:0 0 0 3px var(--accent);} 100%{box-shadow:0 0 0 0 transparent;}}
+  .task.justAdded{animation:v54NewCard 1.8s ease-out 1;}
+  .searchEmpty{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13.5px; line-height:1.6; color:var(--ink);
+    background:var(--orange-bg); border:1.5px solid var(--orange); border-radius:12px; padding:9px 14px; margin-bottom:10px;}
   .task .detailToggle{background:none; font-size:12.5px; color:var(--sub); padding:2px 4px; margin-top:2px;}
   .task .detailToggle:hover{color:var(--accent);}
   .task .meta{display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-top:7px;}
@@ -584,7 +597,9 @@
   /* 手機 */
   @media (max-width:880px){
     body{padding:12px 8px 60px;}
-    .appLayout{flex-direction:column;}
+    /* v52 修：直排後 align-items 必須改 stretch——沿用桌機的 flex-start 會讓內容欄
+       縮成「內容自然寬」，內容少的頁（首頁空狀態、習慣打卡）整欄變窄靠左 */
+    .appLayout{flex-direction:column; align-items:stretch;}
     .sideNav{flex-direction:row; position:static; width:100%; flex:auto; flex-wrap:wrap;}
     .navItem{flex:1 1 auto; text-align:center; padding:8px 10px; font-size:13.5px;}
     .navDivider{display:none;}
@@ -612,7 +627,14 @@
   }
   /* 📱 手機殼 Phase 1（≤600px）：底部固定導覽列＋貓咪列瘦身＋輸入區摺疊浮動鈕 */
   #mobAddBtn{display:none;}
+  .mobOnly{display:none !important;}   /* 只在手機出現的控制項（桌機藏） */
   @media (max-width:600px){
+    /* 🧹 手機減法（2026-08-25 真機回饋）：說明文字與次要控制項收斂，易讀易用優先 */
+    .mobHide{display:none !important;}
+    .mobOnly{display:inline-flex !important;}
+    .calLegend{display:none;}          /* 各日曆的語意說明：桌機看得到，手機不佔畫面 */
+    .secSub{display:none;}             /* 分區標題的（括號說明）：手機只留重點，不再折行 */
+    .mobFoldable:not(.open){display:none;}   /* 手機預設收合的工具列（點按展開） */
     body{padding:10px 10px calc(78px + env(safe-area-inset-bottom, 0px));}
     /* 🍎 iOS 鐵律：輸入控制項字級 <16px 會觸發聚焦自動放大（且不會縮回）——手機上一律 16px */
     input, textarea, select{font-size:16px !important;}
@@ -633,11 +655,10 @@
       border:none; background:transparent; border-radius:12px;}
     .navItem.on{background:var(--accent); color:var(--on-accent,#fff);}
     .navDivider{display:none;}
-    /* 貓咪列瘦身：貓縮小、泡泡最多三行；右側標題讓位給內容 */
+    /* 貓咪列瘦身：貓縮小、常駐對話框移除（回饋改浮動泡泡、互動改點貓選單）；右側標題讓位給內容 */
     .catBox svg{width:60px; height:50px;}
-    .catBar{gap:8px; margin-bottom:10px;}
-    .bubble{font-size:12.5px; padding:7px 12px;
-      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+    .catBar{gap:8px; margin-bottom:8px;}
+    .catBar .bubble{display:none;}
     .headRight{display:none;}
     /* 內容留白收窄、工具列可橫捲 */
     .trkCard,.inputCard,.calCard{padding:12px 10px;}
@@ -674,6 +695,16 @@
     .task .dragHandle, .trkDragHd, .deskOnly{display:none !important;}
     /* 📒 便利貼手機一律全寬：窄卡在小螢幕又擠又難讀 */
     .stickyNote, .stickyNote.szM{width:100%;}
+    /* 🌱 習慣新增表單手機直排：輸入全寬 → 圖示橫向滑動選 → ＋鈕全寬好按 */
+    .habNewForm{flex-direction:column; align-items:stretch; gap:8px;}
+    .habNewForm .miniInput{width:100% !important;}
+    .habNewForm .habIconRow{flex-wrap:nowrap !important; overflow-x:auto; -webkit-overflow-scrolling:touch;
+      padding-bottom:4px; max-width:100%;}
+    .habNewForm .habIconRow::-webkit-scrollbar{display:none;}
+    .habNewForm .habIconRow .qbtn{flex:0 0 auto; min-width:44px;}
+    .habNewForm > .qbtn:last-child{width:100%; justify-content:center; min-height:44px; font-size:15px;}
+    /* 主要動作鈕不再折行（「貼上便利貼📒」曾折成兩行） */
+    .btnAdd{white-space:nowrap;}
     /* 表格欄字不再被壓成直排（寬度交給橫向捲動；追蹤/記帳/名單都適用） */
     .trkTable th, .trkTable td{white-space:nowrap;}
     /* 沒事的日子壓成細細一列快速掃過（舊瀏覽器不支援 :has 就維持普通列，無害） */
@@ -681,6 +712,21 @@
       padding:2px 9px; opacity:.5; border-color:transparent; background:transparent;}
     .calCell:not(.today):not(.sel):not(:has(.calPill)):not(:has(.calIcons)) .dnum{
       flex-direction:row; gap:6px; font-size:12.5px; align-items:baseline;}
+    /* 🗓️ 格狀月曆模式（手機檢視下拉選「格狀月曆」）：傳統一格一格，事項顯示成小色條，點格子看當日清單 */
+    .calGrid.gridMode{display:grid; grid-template-columns:repeat(7,1fr); gap:3px;}
+    .calGrid.gridMode .wd{display:block; font-size:11px;}
+    .calGrid.gridMode .calCell{display:block; min-height:48px; padding:3px 4px; opacity:1;
+      border:1px solid var(--line); background:var(--cell-bg);}
+    .calGrid.gridMode .calCell.dim{display:block; opacity:.3;}
+    .calGrid.gridMode .calCell.today{border-color:var(--accent); background:var(--accent-soft);}
+    .calGrid.gridMode .calCell.sel{outline:2px solid var(--accent);}
+    .calGrid.gridMode .dnum{display:block; font-size:11.5px; padding:0;}
+    .calGrid.gridMode .calWd{display:none;}
+    .calGrid.gridMode .calPill{display:block; height:6px; padding:0; margin:2px 0 0;
+      border-radius:3px; overflow:hidden; color:transparent; font-size:1px; line-height:6px;}
+    .calGrid.gridMode .calPill.more{display:none;}
+    .calGrid.gridMode .calIcons{margin:0; line-height:1;}
+    .calGrid.gridMode .calIcon{font-size:11px; margin:0;}
     /* 右下浮動「＋ 新增任務」（只在任務清單頁出現；展開後變 ✕＝收起） */
     body.mobFabOn #mobAddBtn{display:flex;}
     #mobAddBtn{position:fixed; right:14px; bottom:calc(86px + env(safe-area-inset-bottom, 0px));
@@ -823,6 +869,8 @@
     <input type="file" id="importFile" accept=".json" style="display:none">
     <div id="importPanel" style="display:none;width:100%;margin-top:8px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--cell-bg);font-size:13px;line-height:1.7;text-align:left;"></div>
     <div class="note">資料存在這台裝置的瀏覽器（localStorage），關掉再開都還在，不會上傳。建議偶爾匯出備份一次。</div>
+    <div class="note" id="verNote"></div>
+    <script>document.getElementById('verNote').textContent='🐾 Catlendar '+(window.APP_BUILD||'').replace(/-(\d{4}-\d{2}-\d{2})$/,'（$1）');</script>
   </div>
 </div>
 <datalist id="contactList"></datalist>
@@ -856,7 +904,7 @@ const SETTINGS_KEY='taskInbox.settings';
 const CAT_COLORS=['blue','purple','teal','pink','green','orange','yellow','gray'];
 let settings=null;
 function defaultSettings(){ return {
-  mascot:'orange', space:'work',
+  mascot:'tuxedo', space:'work',   // v52 起預設賓士貓（與主畫面 icon 一致）；老用戶已存的 mascot 不受影響
   // 新用戶預設精簡：導覽只亮 首頁＋任務＋設定，其餘功能到設定頁自行開啟
   modules:{projects:false, notes:false, track:false, bigcal:false, phone:false, sites:false, manual:false, money:false, stock:false, habits:false, pomo:false, archive:false, diary:false},
   cats:{
@@ -1234,6 +1282,9 @@ function applyMascot(){
   merged.imp=ensureContrast(merged.imp, merged['yellow-bg']||cardBg, 4.5);   // ⭐重要 標籤的金色字
   const root=document.documentElement.style;
   Object.entries(merged).forEach(([k,v])=>root.setProperty('--'+k, v));
+  // 📱 瀏覽器工具列/狀態列顏色跟著吉祥物主題走（PWA 加入主畫面後尤其明顯）
+  const tc=document.querySelector('meta[name="theme-color"]');
+  if (tc && merged.accent) tc.setAttribute('content', merged.accent);
   if (settings && settings.cats) rebuildCustomCatCSS();   // 自選顏色跟著主題重算對比
   // ◽ 極簡模式（黑貓/白貓）＝整體收斂：標題去爪印、副標改中性、導覽去 emoji、泡泡變安靜（給不愛花俏的人）
   const isPlain=!!m.plain;
@@ -1757,11 +1808,31 @@ function addTask(){
   save();
   input.value=''; draft=null;
   inputBody.value='';
-  preview.innerHTML='<span class="hint">已加入喵 ✔</span>';
+  preview.innerHTML='<span class="hint addedOk">✅ 已加入，排在清單最上面</span>';
+  justAddedId=tasks[0].id;
+  inputBody.style.height='';
   quickDates.style.display='none';
   catSay('收到！記下來了喵～',1800);
   render();
+  // v54：連續輸入不中斷——桌機把焦點放回標題框（手機不搶焦點，免得鍵盤一直彈出來）
+  if (!(typeof isMobileShell==='function' && isMobileShell())) setTimeout(()=>input.focus(),0);
 }
+/* v54：輸入框隨內容自動長高（上限由 max-height 控制，超過才捲動） */
+function autoGrowTa(el, minPx){
+  el.style.height='auto';
+  el.style.height=Math.max(minPx||52, el.scrollHeight+2)+'px';
+}
+(function(){
+  const ib=document.getElementById('inputBody');
+  if (ib) ib.addEventListener('input',()=>autoGrowTa(ib,52));
+  // v54：點輸入卡的空白處也會聚焦標題框（以前點到空白→沒聚焦→打「9/24」會誤觸快捷鍵跑進搜尋）
+  const ic=document.querySelector('.inputCard');
+  if (ic) ic.addEventListener('click',e=>{
+    if (e.target.closest('button,input,textarea,select,a,label,.memberTag,[contenteditable]')) return;
+    if (String(window.getSelection&&window.getSelection())) return;
+    document.getElementById('input').focus();
+  });
+})();
 
 /* ───────── 篩選＋檢視 ───────── */
 let filterCat='全部';
@@ -1875,6 +1946,22 @@ try{ window.matchMedia('(max-width:600px)').addEventListener('change', ()=>rende
 if (/^https?:$/.test(location.protocol)){
   const l1=document.createElement('link'); l1.rel='manifest'; l1.href='manifest.json'; document.head.appendChild(l1);
   const l2=document.createElement('link'); l2.rel='apple-touch-icon'; l2.href='icon-180.png'; document.head.appendChild(l2);
+  // 🔄 自動偵測新版本：抓最新頁面開頭比對版本戳，不同＝雲端有新版 → 一鍵更新
+  //（更新用帶時間戳的網址繞過快取；同網域，localStorage 資料完全不受影響）
+  setTimeout(()=>{
+    fetch(location.pathname+'?chk='+Date.now(), {headers:{'Range':'bytes=0-2047'}, cache:'no-store'})
+      .then(r=>r.text()).then(t=>{
+        const m=t.match(/APP_BUILD='([^']+)'/);
+        if (!m || m[1]===window.APP_BUILD) return;
+        const b=document.createElement('button'); b.id='updBtn'; b.className='qbtn';
+        b.style.cssText='position:fixed;top:10px;right:10px;z-index:98;background:var(--accent);'
+          +'color:var(--on-accent,#fff);font-weight:700;box-shadow:0 3px 10px rgba(0,0,0,.3);';
+        b.textContent='🔄 有新版，點我更新';
+        b.onclick=()=>location.replace(location.pathname+'?u='+Date.now());
+        document.body.appendChild(b);
+        catSay('有新版本喵！點右上角 🔄 更新（資料不會動到）',5000);
+      }).catch(()=>{});
+  }, 1500);
 }
 /* ⚙ 任務頁快速顯示開關（懸浮小選單） */
 let gearOpen=false;
@@ -1929,6 +2016,8 @@ document.getElementById('spaceBtn').onclick=()=>{
 
 /* ───────── 主畫面 ───────── */
 const expandedDetail=new Set();
+const fullDetail=new Set();      // v54：哪些卡的長內文已「展開全文」（預設先收成 6 行）
+let justAddedId=null;            // v54：剛加入的任務 → 新卡亮一下，回饋看得見
 const editingText=new Set();     // 內文編輯中
 const openPicker=new Set();      // 開著「標籤＋對象」列的卡片
 const openSubs=new Set();        // 開著「子項目」編輯列的卡片
@@ -1944,9 +2033,15 @@ function render(){
   const moreBtn=document.getElementById('navMore');
   const settingsBtn=document.querySelector('#sideNav .navItem[data-m="settings"]');
   let moreCount=0;
+  const MOBILE_HIDDEN=['track','sites'];   // 📱 使用者拍板：追蹤項目與網站收藏手機不放導覽（深連結仍可達）
+  // 「⋯更多」只剩一個項目時直接顯示——為一個項目多一層收合沒有意義（使用者回饋）
+  const soloMore = Object.keys(OPTIONAL_MODULES).filter(k=>settings.modules[k]==='more'
+    && !(isMobileShell()&&MOBILE_HIDDEN.includes(k))).length===1;
   document.querySelectorAll('#sideNav .navItem[data-m]').forEach(b=>{
     const m=b.dataset.m;
-    const st=OPTIONAL_MODULES[m] ? settings.modules[m] : true;
+    if (isMobileShell() && MOBILE_HIDDEN.includes(m)){ b.style.display='none'; b.classList.toggle('on', m===module); return; }
+    let st=OPTIONAL_MODULES[m] ? settings.modules[m] : true;
+    if (st==='more' && soloMore) st=true;
     if (st==='more'){
       moreCount++;
       b.parentNode.insertBefore(b, settingsBtn);   // 收合項集中排在「更多」鈕之後
@@ -2082,6 +2177,16 @@ function renderList(){
 
   const secs=document.getElementById('sections');
   secs.innerHTML='';
+  if (taskQ.trim()){
+    const _hit=spaceTasks().filter(t=>((t.title||'')+' '+(t.text||'')+' '+(t.who||'')).includes(taskQ.trim())).length;
+    if (!_hit){
+      const se=document.createElement('div'); se.className='searchEmpty';
+      const tx=document.createElement('span'); tx.textContent='🔍 正在搜尋「'+taskQ.trim().slice(0,30)+'」，沒有符合的任務——任務都還在，只是被搜尋條件藏起來了。';
+      const cb=document.createElement('button'); cb.className='qbtn'; cb.textContent='✕ 清除搜尋';
+      cb.onclick=()=>{ taskQ=''; const si=document.getElementById('taskSearch'); if (si) si.value=''; render(); };
+      se.appendChild(tx); se.appendChild(cb); secs.appendChild(se);
+    }
+  }
   // 剛完成含期限的任務 → 問是不是例行事項（輕量重複任務）
   if (lastDone){
     const src=lastDone;
@@ -2163,6 +2268,7 @@ function renderList(){
   srow.appendChild(sSel);
   if (sortMode!=='smart'){
     const hint=document.createElement('span'); hint.style.cssText='color:var(--muted2);';
+    hint.className='mobHide';   // 手機沒有拖曳功能，這句只會造成雜訊折行
     hint.textContent='（此排序下 ⠿ 拖曳不生效）';
     srow.appendChild(hint);
   }
@@ -2323,6 +2429,7 @@ function taskCard(t){
   const card=document.createElement('div');
   card.className='task';
   card.dataset.tid=t.id;   // 反黑加註解要靠它找回是哪張卡
+  if (justAddedId && t.id===justAddedId){ card.classList.add('justAdded'); setTimeout(()=>{ if (justAddedId===t.id) justAddedId=null; },1900); }
   // 📱 手勢：待辦卡往右滑＝完成（跟手位移、過閾值亮綠框、放手觸發）。
   // 防誤觸：輸入框/子清單內不啟動、正在反黑選字不啟動、垂直捲動不啟動。桌機無 touch 天然不生效
   if (t.status==='todo' && 'ontouchstart' in window){
@@ -2439,6 +2546,9 @@ function taskCard(t){
           save(); render();
         };
         ta.onblur=commit;
+        ta.style.maxHeight='60vh';
+        ta.addEventListener('input',()=>autoGrowTa(ta,120));
+        setTimeout(()=>autoGrowTa(ta,120),0);
         bindCtrlSave(ta, commit);   // 內文＝寫內容的編輯區：Enter 換行、Ctrl+Enter 快速存
         card.appendChild(ta);
         card.appendChild(editHint());
@@ -2446,8 +2556,20 @@ function taskCard(t){
       } else {
         const dv=document.createElement('div');
         dv.className='detail';
-        renderRich(dv, t.text);
+        // v54：內文第一行若跟標題一樣就不重複顯示（只影響顯示，資料不動）
+        let _body=t.text||'';
+        const _ls=_body.split('\n');
+        if (_ls.length>1 && _ls[0].trim()===(t.title||'').trim()) _body=_ls.slice(1).join('\n').replace(/^\n+/,'');
+        renderRich(dv, _body);
         card.appendChild(dv);
+        // v54：長內文先收成 6 行＋漸層，按鈕展開全文（不再用內層捲軸）
+        const isFull=fullDetail.has(t.id);
+        if (!isFull) dv.classList.add('clamp');
+        const mb=document.createElement('button'); mb.className='detailToggle';
+        mb.textContent=isFull?'▴ 收成 6 行':'▾ 展開全文';
+        mb.onclick=()=>{ isFull?fullDetail.delete(t.id):fullDetail.add(t.id); render(); };
+        card.appendChild(mb);
+        if (!isFull) requestAnimationFrame(()=>{ if (dv.scrollHeight<=dv.clientHeight+6){ dv.classList.remove('clamp'); mb.style.display='none'; } });
         const eb=document.createElement('button'); eb.className='detailToggle';
         eb.textContent='✏️ 編輯內文';
         eb.onclick=()=>{ editingText.add(t.id); render(); };
@@ -2664,7 +2786,7 @@ function taskCard(t){
       t.status='waiting';
       t.followUp=toISO(addDays(new Date(),3));
       openWait.add(t.id);
-      save(); catSay('好～先預設 3 天後提醒你催，可以在卡片上調整喵',2600); render();
+      save(); catSay('已移到下方「⏳ 等對方回覆」區，'+fmtDate(fromISO(t.followUp))+' 提醒你催（卡片上可改日期）喵',4200); render();
     },'我寄出了、等對方回覆（會排催辦提醒）');
   } else if (t.status==='waiting'){
     mkBtn('✔ 對方回了','primary',()=>{ t.status='todo'; t.followUp=null; openWait.delete(t.id); save(); render(); });
@@ -3021,6 +3143,31 @@ function copyWeekDone(){
   ta.remove();
   catSay(ok?'本週成果複製好了！貼到週報吧喵～':'複製失敗喵…',2600, ok?'happy':'alarmed');
 }
+/* 📱 手機日曆範圍切換：整月/本週/今天（桌機不顯示、不過濾） */
+let mobCalRange='month';
+let mobBigLay=false;      // 📱 總月曆圖層列：手機預設收合
+let mobDiaryTools=false;  // 📱 日誌工具列（日期選擇/搜尋/複製/14天條）：手機預設收合
+function mobRangeKeep(iso){
+  if (!isMobileShell() || mobCalRange==='month' || mobCalRange==='grid') return true;
+  const t=new Date(); t.setHours(0,0,0,0);
+  if (mobCalRange==='day') return iso===toISO(t);
+  const ws=addDays(t,-t.getDay());
+  return iso>=toISO(ws) && iso<=toISO(addDays(ws,6));
+}
+function mkMobRange(rerender){
+  // 📱 一顆下拉選檢視（使用者回饋：按鈕太多）：格狀月曆／整月列表／本週／今天
+  const r=document.createElement('div'); r.className='mobOnly';
+  r.style.cssText='gap:6px;margin:0 0 8px;justify-content:center;width:100%;';
+  const s=document.createElement('select'); s.className='miniSelect';
+  [['grid','🗓️ 格狀月曆'],['month','📋 整月列表'],['week','📋 本週'],['day','📋 今天']].forEach(([k,l])=>{
+    const o=document.createElement('option'); o.value=k; o.textContent=l;
+    if (mobCalRange===k) o.selected=true;
+    s.appendChild(o);
+  });
+  s.onchange=()=>{ mobCalRange=s.value; rerender(); };
+  r.appendChild(s);
+  return r;
+}
 /* 📱 手勢通用：水平滑動（垂直位移過大視為捲動、不觸發）。桌機無 touch 事件，天然不生效 */
 function bindSwipeX(el, onLeft, onRight){
   let sx=0, sy=0, on=false;
@@ -3180,8 +3327,13 @@ function renderCalendar(){
       c.innerHTML=`<div class="dnum">${prevDays-startW+1+i}</div>`;
       grid.appendChild(c);
     }
-    for (let d=1;d<=daysInM;d++) grid.appendChild(mkCell(toISO(new Date(calY,calM,d)), d));
+    for (let d=1;d<=daysInM;d++){
+      const iso=toISO(new Date(calY,calM,d));
+      if (mobRangeKeep(iso)) grid.appendChild(mkCell(iso, d));   // 📱 手機可切 月/週/日 範圍
+    }
   }
+  if (!calRoll) card.appendChild(mkMobRange(renderCalendar));
+  grid.classList.toggle('gridMode', isMobileShell() && mobCalRange==='grid' && !calRoll);   // 📱 格狀月曆模式
   bindSwipeX(grid, ()=>next.onclick(), ()=>prev.onclick());   // 📱 左滑＝下個月（接下來模式＝下一週）
   card.appendChild(grid);
   wrap.appendChild(card);
@@ -4482,9 +4634,15 @@ function renderBigCal(){
     return;
   }
 
-  // 圖層開關
+  // 圖層開關（📱 手機預設收合成一顆「▾ 圖層」，點了才展開——上方按鈕太多是真機實測的痛點）
   const L=settings.bigcal;
+  const layTog=document.createElement('button'); layTog.className='qbtn mobOnly'+(mobBigLay?' on':'');
+  layTog.textContent=mobBigLay?'▴ 圖層':'▾ 圖層';
+  layTog.title='選擇月曆要顯示哪些內容（任務期限／追蹤日…）';
+  layTog.onclick=()=>{ mobBigLay=!mobBigLay; renderBigCal(); };
+  vt.appendChild(layTog);
   const lay=document.createElement('div'); lay.className='calModes';
+  if (!mobBigLay) lay.classList.add('mobHide');
   BIGCAL_LAYERS.forEach(([k,label])=>{
     const b=document.createElement('button');
     b.className='qbtn'+(L[k]?' on':'');
@@ -4608,8 +4766,13 @@ function renderBigCal(){
       c.innerHTML=`<div class="dnum">${prevDays-startW+1+i}</div>`;
       grid.appendChild(c);
     }
-    for (let d=1;d<=daysInM;d++) grid.appendChild(mkCell(toISO(new Date(bcY,bcM,d)), d));
+    for (let d=1;d<=daysInM;d++){
+      const iso=toISO(new Date(bcY,bcM,d));
+      if (mobRangeKeep(iso)) grid.appendChild(mkCell(iso, d));   // 📱 手機可切 月/週/日 範圍
+    }
   }
+  if (bigView==='cal') card.appendChild(mkMobRange(renderBigCal));
+  grid.classList.toggle('gridMode', isMobileShell() && mobCalRange==='grid' && bigView==='cal');   // 📱 格狀月曆模式
   bindSwipeX(grid, ()=>next.onclick(), ()=>prev.onclick());   // 📱 左滑＝下個月（接下來模式＝下一週）
   card.appendChild(grid);
   wrap.appendChild(card);
@@ -5409,6 +5572,7 @@ function renderPhonebook(){
   const addB=document.createElement('button'); addB.className='ghostBtn';
   addB.textContent=uiPB.newOpen?'收起':'＋ 新增聯絡人';
   addB.onclick=()=>{ uiPB.newOpen=!uiPB.newOpen; uiPB.pasteOpen=false; renderPhonebook(); };
+  [tplB,upB,pasteB].forEach(b=>b.classList.add('mobHide'));   // 📱 手機不匯 CSV：只留「＋ 新增聯絡人」
   if (!inAllView()) h.append(tplB,upB,upIn,pasteB,addB);
   top.appendChild(h);
   if (inAllView()){
@@ -5432,16 +5596,17 @@ function renderPhonebook(){
     settings.pbIcon=seq[(seq.indexOf(settings.pbIcon||'🏫')+1)%seq.length];
     saveSettings(); renderPhonebook();
   };
+  icBtn.classList.add('mobHide');   // 📱 手機只留搜尋：圖示切換/分類篩選/批量管理都收起（用搜尋更快）
   bar.appendChild(icBtn);
   ['全部',...new Set(curCats().map(c=>c.name))].forEach(cn=>{
     const c=document.createElement('span');
-    c.className='memberTag'+(uiPB.filter===cn?' on':'');
+    c.className='memberTag mobHide'+(uiPB.filter===cn?' on':'');
     c.textContent=cn;
     c.onclick=()=>{ uiPB.filter=cn; renderPhonebook(); };
     bar.appendChild(c);
   });
   if (!inAllView()){
-    const bm=document.createElement('span'); bm.className='memberTag'+(uiPB.batch?' on':'');
+    const bm=document.createElement('span'); bm.className='memberTag mobHide'+(uiPB.batch?' on':'');
     bm.textContent='☑ 批量管理';
     bm.title='勾選多位聯絡人一次刪除（匯錯了整批清掉）';
     bm.onclick=()=>{ uiPB.batch=!uiPB.batch; uiPB.sel.clear(); if(uiPB.delPending==='batch')uiPB.delPending=null; renderPhonebook(); };
@@ -5569,14 +5734,14 @@ function renderPhonebook(){
         row.appendChild(rl);
       }
       (p.programs||[]).forEach(pr=>{
-        const c=document.createElement('span'); c.className='chip '+colorClass(pr); c.textContent=pr;
+        const c=document.createElement('span'); c.className='chip mobHide '+colorClass(pr); c.textContent=pr;
         row.appendChild(c);
       });
       // 📦 這個人負責的追蹤項目（點了直接跳過去；用 📞 欄連結或名字相符都算）
       const inTrks=trackers.filter(t=>spaceMatch(t.space) && !t.archived
         && t.rows.some(r=>!r.skipped && ((r.pbIds||[]).some(l=>l.id===p.id) || r.name===p.name)));
       inTrks.slice(0,3).forEach(trk=>{
-        const c=document.createElement('span'); c.className='chip type clickable';
+        const c=document.createElement('span'); c.className='chip type clickable mobHide';
         c.textContent='📦 '+trk.title.slice(0,10);
         c.title='負責的追蹤項目：'+trk.title+'（點擊前往）';
         c.onclick=()=>{
@@ -5588,7 +5753,7 @@ function renderPhonebook(){
         row.appendChild(c);
       });
       if (inTrks.length>3){
-        const c=document.createElement('span'); c.className='chip type';
+        const c=document.createElement('span'); c.className='chip type mobHide';
         c.textContent='📦 +'+(inTrks.length-3);
         c.title=inTrks.slice(3).map(t=>t.title).join('、');
         row.appendChild(c);
@@ -5612,7 +5777,7 @@ function renderPhonebook(){
       }
       const sp=document.createElement('span'); sp.style.flex='1'; row.appendChild(sp);
       // 📮 一鍵建追蹤任務（業務催客戶、行政催窗口都用得上）
-      const fu=document.createElement('button'); fu.className='qbtn'; fu.textContent='＋追蹤任務';
+      const fu=document.createElement('button'); fu.className='qbtn mobHide'; fu.textContent='＋追蹤任務';
       fu.title='在 🏡 任務小窩建立一件「聯絡'+p.name+'」的追蹤任務（要催對方的時候用）';
       fu.onclick=()=>{
         const nt={id:uid(), text:'聯絡 '+p.name+(p.phone?'（📞 '+p.phone+'）':''), title:'聯絡 '+p.name,
@@ -5627,7 +5792,7 @@ function renderPhonebook(){
       const eb=document.createElement('button'); eb.className='qbtn'; eb.innerHTML=riIcon('pencil'); eb.title='編輯';
       eb.onclick=()=>{ uiPB.editing=p.id; renderPhonebook(); };
       row.appendChild(eb);
-      const del=document.createElement('button'); del.className='qbtn';
+      const del=document.createElement('button'); del.className='qbtn mobHide';
       if (uiPB.delPending===p.id){
         del.textContent='確定刪除？'; del.style.cssText='background:var(--red);color:var(--on-red,#fff);';
         del.onclick=()=>{ pbook=pbook.filter(x=>x.id!==p.id); uiPB.delPending=null; savePB(); renderPhonebook(); };
@@ -5641,7 +5806,7 @@ function renderPhonebook(){
       }
       row.appendChild(del);
       // 備註：直接點著打，自動儲存
-      const ntWrap=document.createElement('span'); ntWrap.className='pbNote';
+      const ntWrap=document.createElement('span'); ntWrap.className='pbNote mobHide';   // 📱 手機只留 名字/職稱/電話/Email/✎
       const nt=document.createElement('input'); nt.className='cellInput';
       nt.style.cssText='width:100%;font-size:12.5px;';
       nt.placeholder='📝 備註…（點我直接打，自動儲存）';
@@ -6674,12 +6839,19 @@ function renderDiary(){
   const tb=document.createElement('button'); tb.className='qbtn'; tb.textContent='今天';
   tb.onclick=()=>{ uiDiary.date=today; renderDiary(); };
   nav.appendChild(tb);
+  // 📱 手機減法：只留 ‹ › 今天；日期選擇/搜尋/複製/14天條收進「📅」，說明文字手機不顯示
+  const mtool=el=>{ if(!mobDiaryTools) el.classList.add('mobHide'); return el; };
+  const dTog=document.createElement('button'); dTog.className='qbtn mobOnly'+(mobDiaryTools?' on':'');
+  dTog.textContent='📅'; dTog.title='更多：挑日期、搜尋、複製日誌';
+  dTog.setAttribute('aria-label','展開日期選擇與搜尋工具');
+  dTog.onclick=()=>{ mobDiaryTools=!mobDiaryTools; renderDiary(); };
+  nav.appendChild(dTog);
   const di=document.createElement('input'); di.type='date'; di.className='miniInput'; di.value=dIso;
   di.onchange=()=>{ if(di.value){ uiDiary.date=di.value; renderDiary(); } };
-  nav.appendChild(di);
+  nav.appendChild(mtool(di));
   hh.appendChild(nav);
   const spc=document.createElement('span'); spc.className='spacer'; hh.appendChild(spc);
-  hh.appendChild(mkSearchBox('diarySearch','🔍 搜尋日誌…',()=>uiDiary.q,v=>uiDiary.q=v,renderDiary));
+  hh.appendChild(mtool(mkSearchBox('diarySearch','🔍 搜尋日誌…',()=>uiDiary.q,v=>uiDiary.q=v,renderDiary)));
   const cp1=document.createElement('button'); cp1.className='qbtn'; cp1.textContent='📋 今天';
   cp1.title='複製這一天的日誌（手寫＋自動摘要）';
   cp1.onclick=()=>copyText(diaryText(dIso),'這天的日誌複製好了！');
@@ -6694,13 +6866,14 @@ function renderDiary(){
     }
     copyText(parts.join('\n\n'), parts.length?'近 7 天彙整複製好了！貼到週報吧':'這 7 天都沒有紀錄…');
   };
-  hh.appendChild(cp1); hh.appendChild(cp7);
+  hh.appendChild(mtool(cp1)); hh.appendChild(mtool(cp7));
   head.appendChild(hh);
-  const note=document.createElement('div'); note.className='setNote';
+  const note=document.createElement('div'); note.className='setNote mobHide';   // 說明文字手機不顯示（真機回饋：資訊負擔）
   note.textContent='總月曆看「接下來要做什麼」，日誌看「我做了什麼」。上半是系統自動幫你記的，下半自由寫——每天一分鐘，回顧就有感。';
   head.appendChild(note);
-  // 14 天快速條（有寫的亮圈）
+  // 14 天快速條（有寫的亮圈）——手機收在 📅 裡
   const strip=document.createElement('div');
+  mtool(strip);
   strip.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;';
   for (let i=13;i>=0;i--){
     const dd=addDays(new Date(),-i), ddIso=toISO(dd);
@@ -6941,8 +7114,10 @@ function renderHome(){
     d.style.cssText='font-size:13.5px;margin-top:7px;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:'+color+(bold?';font-weight:700':'');
     d.textContent=txt; d.title=txt; hero.appendChild(d);
   };
-  if (!fire.length && !chase.length){
-    add(todo.length ? '沒有急件！從容處理 '+todo.length+' 件待辦就好喵' : '什麼都不用做，跟毛孩玩吧🐾','var(--green)',true);
+  const fireStale=fire.filter(isStaleOverdue);
+  const fireFresh=fire.filter(t=>!isStaleOverdue(t));
+  if (!fireFresh.length && !chase.length){
+    add(todo.length ? (fireStale.length?'今天沒有新的急件，從容處理就好喵':'沒有急件！從容處理 '+todo.length+' 件待辦就好喵') : '什麼都不用做，跟毛孩玩吧🐾','var(--green)',true);
   }
   if (pool.length===0){
     const cta=document.createElement('button'); cta.className='btnAdd';
@@ -6955,8 +7130,12 @@ function renderHome(){
     };
     hero.appendChild(cta);
   }
-  fire.slice(0,5).forEach(t=>add('🔴 '+t.title.slice(0,26)+'　'+urgency(t).label.replace('🔴 ',''),'var(--red)'));
-  if (fire.length>5) add('…還有 '+(fire.length-5)+' 件急件','var(--red)');
+  fireFresh.slice(0,5).forEach(t=>add('🔴 '+t.title.slice(0,26)+'　'+urgency(t).label.replace('🔴 ',''),'var(--red)'));
+  if (fireFresh.length>5) add('…還有 '+(fireFresh.length-5)+' 件急件','var(--red)');
+  if (fireStale.length){
+    const _old=Math.max(...fireStale.map(t=>-daysUntil(fromISO(t.due))));
+    add('🕰 有 '+fireStale.length+' 件擱了比較久（最久 '+_old+' 天）——點這裡去重排：改期限、改成無期限或封存都可以','var(--muted2)');
+  }
   chase.slice(0,5).forEach(t=>add('⏰ 該催了：'+t.title.slice(0,26),'var(--orange)'));
   hero.onclick=()=>{ module='tasks'; view='list'; render(); };
   wrap.appendChild(hero);
@@ -6970,12 +7149,12 @@ function renderHome(){
     if (last && daysSince(last)<7) return;
     if (snz && daysSince(snz)<7) return;
     const bc=document.createElement('div'); bc.className='trkCard';
-    bc.style.cssText='border:1.5px solid var(--orange); background:var(--orange-bg);';
-    bc.innerHTML='<div class="trkHead"><span class="tTitle">💾 該把備份存到電腦裡了</span></div>'
-      +'<div style="font-size:13.5px;line-height:1.7;margin-top:6px;">'
-      +(last?'上次匯出是 <b>'+esc(last)+'</b>（'+daysSince(last)+' 天前）。':'還<b>沒有匯出過備份</b>。')
-      +'瀏覽器的儲存空間偶爾會被系統清掉，硬碟裡的 JSON 備份檔是最可靠的保險。</div>';
-    const row=document.createElement('div'); row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;';
+    bc.style.cssText='border-left:4px solid var(--orange); padding:8px 14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;';
+    bc.title='瀏覽器的儲存空間偶爾會被系統清掉，硬碟裡的 JSON 備份檔是最可靠的保險。';
+    bc.innerHTML='<span style="font-size:13.5px;line-height:1.6;flex:1;min-width:200px;">💾 '
+      +(last?'上次匯出備份是 <b>'+esc(last)+'</b>（'+daysSince(last)+' 天前）':'還<b>沒有匯出過備份</b>')
+      +'，有空存一份到電腦比較安心。</span>';
+    const row=document.createElement('div'); row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;';
     const ex=document.createElement('button'); ex.className='qbtn';
     ex.style.cssText='background:var(--accent);color:var(--on-accent,#fff);font-weight:700;';
     ex.textContent='📤 立即匯出備份';
@@ -7348,7 +7527,7 @@ function saveHabits(){ localStorage.setItem(HABITS_KEY, JSON.stringify(habits));
 const uiHab={ expand:new Set(), edit:null, view:'list', delPending:null, delTimer:null, newIcon:'🌱' };
 const HABIT_ICONS=['🌱','💧','🏃','📖','🧘','😴','🍎','💪','🧹','🎨'];
 function mkHabitIconPicker(getV, setV){
-  const w=document.createElement('span');
+  const w=document.createElement('span'); w.className='habIconRow';   // 📱 手機：橫向滑動選 icon
   w.style.cssText='display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap;';
   const lb=document.createElement('span'); lb.style.cssText='font-size:12.5px;color:var(--sub);';
   lb.textContent='圖示：';
@@ -7606,9 +7785,9 @@ function renderHabits(){
     hint.textContent='🌍 總覽模式：顯示工作＋私人全部習慣。要新增請先切換空間。';
     top.appendChild(hint);
   } else if (uiHab.view==='list'){
-    const f=document.createElement('div'); f.className='pickerRow';
+    const f=document.createElement('div'); f.className='pickerRow habNewForm';   // 📱 手機直排：輸入全寬→滑動選icon→大顆＋
     const ni=document.createElement('input'); ni.className='miniInput'; ni.style.width='200px';
-    ni.placeholder='想養成什麼？例：喝水8杯、週三運動';
+    ni.placeholder=isMobileShell()?'想養成什麼？':'想養成什麼？例：喝水8杯、週三運動';
     const ok=document.createElement('button'); ok.className='qbtn'; ok.textContent='＋開始養成';
     ok.style.cssText='background:var(--accent);color:var(--on-accent,#fff);';
     ok.onclick=()=>{
@@ -8493,6 +8672,12 @@ function renderSettings(){
 }
 
 /* ───────── 統計＋貓咪 ───────── */
+/* v54：擱很久的逾期（超過 7 天、又沒標「急」）＝多半是沒有硬期限的專案型工作。
+   首頁與貓咪不再把它們當「急事」吼人，改成溫和的一行提醒去重排；任務小窩裡照實顯示不變 */
+function isStaleOverdue(t){
+  const d=fromISO(t.due);
+  return !!d && daysUntil(d)<-7 && !((t.tags||[]).includes('急'));
+}
 function countRed(){
   return spaceTasks().filter(t=>t.status==='todo'&&urgency(t).level==='red').length;
 }
@@ -8529,8 +8714,10 @@ function updateCat(){
   const wait=pool.filter(t=>t.status==='waiting').length;
   const P=persona();
   let mood, msg;
-  if (red>0){ mood='alarmed'; msg=P.red(red); }
+  const _fresh=pool.filter(t=>t.status==='todo'&&urgency(t).level==='red'&&!isStaleOverdue(t)).length;
+  if (_fresh>0){ mood='alarmed'; msg=P.red(_fresh); }
   else if (chase>0){ mood='alarmed'; msg=P.chase(chase); }
+  else if (red>0){ mood='normal'; msg=vocal('好久不見～有 '+red+' 件事擱了一陣子，不急，先挑一件最小的就好喵'); }
   else if (todo===0&&wait===0){ mood='sleepy'; msg=P.empty; }
   else if (todo===0){ mood='happy'; msg=vocal('待辦都清空了，剩等回覆的而已，悠哉喵～'); }
   else if (todo<=2){ mood='happy'; msg=P.few(todo); }
@@ -8539,8 +8726,8 @@ function updateCat(){
 }
 function catSay(text,ms,mood){
   clearTimeout(sayTimer);
-  if (settings && settings.catPos && typeof showFloatBub==='function'){
-    showFloatBub(vocal(text), ms||2000);   // 出門中：話跟著貓走，門口保持花園
+  if (settings && (settings.catPos || (typeof isMobileShell==='function' && isMobileShell())) && typeof showFloatBub==='function'){
+    showFloatBub(vocal(text), ms||2000);   // 出門中／手機：話用浮動泡泡顯示（手機常駐泡泡已移除省空間）
   } else {
     bubble.textContent=vocal(text);
   }
@@ -9452,12 +9639,16 @@ catFloatBub.style.cssText='position:fixed;display:none;z-index:96;max-width:250p
 document.body.appendChild(catFloatBub);
 let floatBubTimer=null;
 function showFloatBub(text, ms){
-  if (!settings || !settings.catPos) return;
+  if (!settings) return;
+  if (!settings.catPos && !isMobileShell()) return;   // 桌機在家＝用門口常駐泡泡
   const r=catBox.getBoundingClientRect();
   catFloatBub.textContent=text;
   catFloatBub.style.display='block';
-  catFloatBub.style.left=Math.max(4, Math.min((window.innerWidth||1200)-260, r.left-70))+'px';
-  catFloatBub.style.top=Math.max(4, r.top-50)+'px';
+  let bx=Math.max(4, Math.min((window.innerWidth||1200)-260, r.left-70));
+  let by=r.top-50;
+  if (by<4){ by=r.bottom+8; bx=Math.max(4, Math.min((window.innerWidth||1200)-260, r.left)); }   // 貓在頁頂＝泡泡改顯示在貓下方，不蓋貓臉
+  catFloatBub.style.left=bx+'px';
+  catFloatBub.style.top=by+'px';
   clearTimeout(floatBubTimer);
   floatBubTimer=setTimeout(()=>{ catFloatBub.style.display='none'; }, ms||2400);
 }
@@ -9554,7 +9745,16 @@ function showCatMenu(){
     const ok=await syncPush();
     catSay(ok?'✅ 推上雲端完成喵！':'⚠️ 推送失敗，去 ⚙️ 設定的雲端同步卡看原因喵',3200, ok?'happy':'alarmed');
   });
-  mk('🏠 送貓回家（左上角）', catGoHome);
+  mk('⬇ 用雲端覆蓋本機', ()=>{
+    hideCatMenu();
+    if (!syncCfg.url||!syncCfg.token){
+      catSay('還沒設定雲端同步喵～去 ⚙️ 設定 → ☁️ 雲端同步 貼網址和通行碼',4000,'alarmed');
+      return;
+    }
+    catSay('⬇ 下載雲端資料中…（會先自動留快照）',2400);
+    syncPullApply(true);
+  });
+  if (settings.catPos) mk('🏠 送貓回家（左上角）', catGoHome);
   catMenu.appendChild(box);
   const r=catBox.getBoundingClientRect();
   catMenu.style.left=Math.max(4, Math.min((window.innerWidth||1200)-220, r.left))+'px';
@@ -9587,7 +9787,7 @@ document.addEventListener('pointerup', ()=>{
 catBox.addEventListener('click', e=>{
   if (e.target===catHomeBtn) return;   // ✕ 回家鈕自己處理，別被貓咪小選單攔截（v45 修正：之前點 ✕ 只會開選單、回不了家）
   if (catMoved){ e.stopImmediatePropagation(); return; }
-  if (settings && settings.catPos){
+  if (settings && (settings.catPos || isMobileShell())){   // 📱 手機：點貓＝開小選單（含 ☁️ 推上雲端／⬇ 雲端覆蓋）
     e.stopImmediatePropagation();
     catMenuOpen ? hideCatMenu() : showCatMenu();
   }
@@ -9864,13 +10064,36 @@ renderSettings=function(){
   const at=document.createElement('span'); at.className='memberTag'+(syncCfg.auto?' on':'');
   at.textContent='自動同步：'+(syncCfg.auto?'開':'關');
   at.onclick=()=>{ syncCfg.auto=!syncCfg.auto; saveSyncCfg(); renderSettings(); };
-  r2.append(bT,bU,bD,at); c.appendChild(r2);
+  r2.append(bT,bU,bD,at);
+  // 📱 安裝連結：把同步設定夾帶在網址裡——換手機/重加主畫面/開新瀏覽器，開這條連結就自動設定好，不用再貼
+  if (/^https?:$/.test(location.protocol)){
+    const bL=document.createElement('button'); bL.className='qbtn'; bL.textContent='📱 複製安裝連結';
+    bL.title='複製「開了就自動完成同步設定」的網址。⚠️ 連結含通行碼，只留給自己（存在自己的備忘錄/書籤）';
+    bL.onclick=()=>{
+      if (!syncCfg.url||!syncCfg.token){ catSay('先把上面的網址和通行碼填好喵',2600,'alarmed'); return; }
+      copyText(location.origin+location.pathname+'#sync='+encodeURIComponent(syncCfg.url)+'|'+encodeURIComponent(syncCfg.token),
+        '安裝連結複製好了！含通行碼，只能留給自己用喵');
+    };
+    r2.appendChild(bL);
+  }
+  c.appendChild(r2);
   const st=document.createElement('div'); st.id='syncStatus';
   st.style.cssText='margin-top:8px;font-size:13.5px;font-weight:600;color:var(--sub);';
   st.textContent= syncCfg.url ? (syncCfg.lastAt?('上次同步：'+new Date(syncCfg.lastAt).toLocaleString('zh-Hant')):'尚未同步過') : '尚未設定';
   c.appendChild(st);
   wrap.appendChild(c);
 };
+// 📱 安裝連結進場：網址帶 #sync=網址|通行碼 → 自動完成同步設定（新手機/重加主畫面不用重貼）
+try{
+  const hm=location.hash.match(/^#sync=([^|]+)\|(.+)$/);
+  if (hm){
+    const nu=decodeURIComponent(hm[1]), nt=decodeURIComponent(hm[2]);
+    const changed=(syncCfg.url!==nu || syncCfg.token!==nt);
+    syncCfg.url=nu; syncCfg.token=nt; syncCfg.auto=true; saveSyncCfg();
+    history.replaceState(null,'',location.pathname+location.search);   // 含通行碼的部分立刻從網址列拿掉
+    if (changed) setTimeout(()=>catSay('☁️ 雲端同步設定好了！正在幫你拉資料…',3600,'happy'), 600);
+  }
+}catch(e){}
 // 開啟工具 1 秒後自動檢查雲端（雲端較新才套用）
 if (syncCfg.url && syncCfg.auto) setTimeout(()=>syncPullApply(false), 1000);
 
@@ -9884,7 +10107,13 @@ renderSettings=function(){
     const tt=head.querySelector('.tTitle'); if (!tt) return;
     const title=tt.textContent;
     const open=settings.setOpen.includes(title);
-    [...card.children].forEach(ch=>{ if (ch!==head) ch.style.display=open?'':'none'; });
+    [...card.children].forEach(ch=>{
+      if (ch===head) return;
+      // v52 修：展開時要還原「原本的 inline display」（例如按鈕列的 flex）——
+      // 之前直接清空成 ''，把 display:flex 抹掉、gap 全失效，設定頁按鈕黏成一團（v43 起的潛伏 bug）
+      if (ch.dataset.origD===undefined) ch.dataset.origD=ch.style.display||'';
+      ch.style.display=open?ch.dataset.origD:'none';
+    });
     tt.textContent=(open?'▾ ':'▸ ')+title;
     head.classList.add('foldHead');
     head.title=open?'點擊收合':'點擊展開';
