@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
 <meta name="theme-color" content="#9aab60">
-<script>window.APP_BUILD='v54-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
+<script>window.APP_BUILD='v55-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -265,6 +265,64 @@
   .task .detail.clamp::after{content:''; position:absolute; left:0; right:0; bottom:0; height:3.2em; pointer-events:none;
     background:linear-gradient(to bottom, transparent, var(--card));}
   .task .detail b,.task .detail strong{font-weight:700; background:linear-gradient(transparent 58%, var(--accent-soft) 58%); padding:0 1px;}
+  /* ── v55 任務小窩「清單列」：一行一件、點開才是完整卡片；右上可切回「卡片」密度 ── */
+  .secGrid.rows{columns:1 !important; display:block; border:1.5px solid var(--line); border-radius:14px; overflow:hidden; background:var(--card);}
+  .taskRow{display:flex; align-items:center; gap:9px; padding:6px 12px; min-height:42px; cursor:pointer;
+    border-bottom:1px solid var(--line); background:var(--card); transition:background .12s;}
+  .secGrid.rows > :last-child{border-bottom:none;}
+  .taskRow:hover{background:var(--cell-bg);}
+  .taskRow:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
+  .taskRow .rowDone{flex:none; width:24px; height:24px; border-radius:50%; border:2px solid var(--muted2); background:none; padding:0;
+    display:flex; align-items:center; justify-content:center; color:transparent; font-size:13px; line-height:1;}
+  .taskRow .rowDone:hover{border-color:var(--green); color:var(--green); background:var(--green-bg);}
+  .taskRow .rowStar{flex:none; font-size:13px;}
+  .taskRow .rowTitle{flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:15px; color:var(--ink);}
+  .taskRow .rowMeta{flex:none; font-size:12.5px; color:var(--muted2); white-space:nowrap;}
+  .taskRow .rowDue{flex:none; font-size:12.5px; white-space:nowrap; font-weight:600;}
+  .taskRow .rowDue.lv-red{color:var(--red);} .taskRow .rowDue.lv-orange{color:var(--orange);} .taskRow .rowDue.lv-yellow{color:var(--muted2); font-weight:400;}
+  .taskRow .rowDue.stale{color:var(--muted2); font-weight:400;}
+  .taskRow .rowDot{flex:none; width:9px; height:9px; border-radius:50%; background:currentColor !important; padding:0;}
+  .taskRow .rowChev{flex:none; color:var(--faint); font-size:12px;}
+  .taskRow.justAdded{animation:v54NewCard 1.8s ease-out 1;}
+  .taskRow .dragHandle{display:inline-block; cursor:grab; color:var(--faint); user-select:none; font-size:14px; touch-action:none; flex:none; opacity:.3; transition:opacity .15s;}
+  .taskRow:hover .dragHandle{opacity:1;} .taskRow .dragHandle:hover{color:var(--accent);}
+  .taskRow.dropBefore{box-shadow:0 -3px 0 0 var(--accent);} .taskRow.dropAfter{box-shadow:0 3px 0 0 var(--accent);}
+  @media (max-width:600px){
+    .taskRow .dragHandle{display:none !important;}
+    /* 手機：標題優先，右側期限可被截短（不然長期限字樣會把標題擠到只剩兩個字） */
+    .taskRow .rowTitle{min-width:52%;}
+    .taskRow .rowDue{flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis;}
+  }
+  .secGrid.rows > .task{margin:0; border:none; border-bottom:1px solid var(--line); border-radius:0; box-shadow:inset 3px 0 0 var(--accent); padding:10px 14px 12px 16px;}
+  .task .rowCollapse{position:absolute; top:6px; right:8px; background:none; font-size:12.5px; color:var(--sub); padding:3px 8px; border-radius:8px;}
+  .task .rowCollapse:hover{color:var(--accent); background:var(--cell-bg);}
+  .task .rowCollapse.shift{right:58px;}
+  .secGrid.rows > .task .title{padding-right:70px;}
+  .subBar{height:5px; border-radius:3px; background:var(--line); margin:8px 0 2px; overflow:hidden;}
+  .subBar > i{display:block; height:100%; background:var(--green);}
+  #taskSortBox{align-items:center; margin-left:auto;}
+  #taskSortBox + .viewToggle{margin-left:0;}
+  .densToggle{margin-left:4px !important;}
+  .densToggle{display:inline-flex; border:1.5px solid var(--line); border-radius:999px; overflow:hidden; margin-left:auto;}
+  .densToggle button{background:none; border:none; padding:3px 12px; font-size:12.5px; color:var(--sub); border-radius:0;}
+  .densToggle button.on{background:var(--ink); color:var(--bg);}
+  .emptyLine{font-size:12.5px; color:var(--muted2); line-height:1.6; padding:0 2px 10px 24px;}
+  .v55Note{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13.5px; line-height:1.6; color:var(--ink);
+    background:var(--accent-soft); border-radius:12px; padding:9px 14px; margin-bottom:10px;}
+  @media (pointer:coarse){ .taskRow{min-height:50px;} .taskRow .rowDone{width:30px; height:30px;} }
+  @media (min-width:1100px){
+    /* 卡片密度：雙欄改「橫向排序」的格線（以前是報紙式直排，看不出哪張接哪張） */
+    .secGrid:not(.rows){columns:auto !important; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 12px; align-items:start;}
+    .secGrid:not(.rows):not(:has(.task:nth-child(2))){grid-template-columns:minmax(0,1fr);}
+  }
+  @media (min-width:601px){
+    /* 輸入卡平常縮成一行，點進去才展開內文與期限選項（JS 加 .open／.hasText） */
+    .inputCard:not(.open):not(.hasText){display:flex; align-items:center; gap:10px; padding:8px 14px;}
+    .inputCard:not(.open):not(.hasText) .inLabel, .inputCard:not(.open):not(.hasText) #inputBody{display:none;}
+    .inputCard:not(.open):not(.hasText) #input{flex:1; min-height:34px; height:34px; resize:none;}
+    .inputCard:not(.open):not(.hasText) .previewRow{margin-top:0; min-height:0; flex:none;}
+    .inputCard:not(.open):not(.hasText) .inputActions{margin-top:0;}
+  }
   .previewRow .hint.addedOk{display:inline-block; font-size:13.5px; font-weight:700; color:var(--green); background:var(--green-bg);
     border-radius:999px; padding:3px 12px;}
   @keyframes v54NewCard{0%{box-shadow:0 0 0 3px var(--accent);} 100%{box-shadow:0 0 0 0 transparent;}}
@@ -817,7 +875,7 @@
 
   <div class="inputCard">
     <div class="inLabel">📌 標題</div>
-    <textarea id="input" placeholder="請輸入標題"></textarea>
+    <textarea id="input" placeholder="記一件事，例如「下週三前回覆報名信」——打完按 Enter"></textarea>
     <div class="inLabel">📝 內文<span class="inHint">選填｜Enter 換行｜[小橘 小黑] 或 []小橘 []小黑＝建立核選框</span></div>
     <textarea id="inputBody" placeholder="要補充的細節…"></textarea>
     <div class="previewRow" id="preview"></div>
@@ -830,6 +888,7 @@
   <div class="toolRow">
     <div class="filters" id="filters"></div>
     <input id="taskSearch" class="miniInput" style="width:170px" placeholder="🔍 搜尋任務…">
+    <div id="taskSortBox" style="display:none"></div>
     <div class="viewToggle">
       <button id="btnListView" class="on">📋 清單</button>
       <button id="btnCalView">🗓️ 日曆</button>
@@ -1811,6 +1870,7 @@ function addTask(){
   preview.innerHTML='<span class="hint addedOk">✅ 已加入，排在清單最上面</span>';
   justAddedId=tasks[0].id;
   inputBody.style.height='';
+  if (window.v55SyncInputCard) setTimeout(window.v55SyncInputCard,0);
   quickDates.style.display='none';
   catSay('收到！記下來了喵～',1800);
   render();
@@ -1825,6 +1885,17 @@ function autoGrowTa(el, minPx){
 (function(){
   const ib=document.getElementById('inputBody');
   if (ib) ib.addEventListener('input',()=>autoGrowTa(ib,52));
+  // v55：輸入卡平常縮成一行；聚焦就展開（.open），有字就保持展開（.hasText）。
+  // 失焦後延遲 260ms 才縮回——立刻縮回會讓下方清單瞬間上移，使用者正在點的按鈕會跑掉（誤點）
+  const icd=document.querySelector('.inputCard'), it=document.getElementById('input');
+  if (icd && it){
+    let tmr=null;
+    const sync=()=>icd.classList.toggle('hasText', !!(it.value.trim() || (ib&&ib.value.trim())));
+    icd.addEventListener('focusin',()=>{ clearTimeout(tmr); icd.classList.add('open'); });
+    icd.addEventListener('focusout',()=>{ clearTimeout(tmr); tmr=setTimeout(()=>{ if (!icd.contains(document.activeElement)) icd.classList.remove('open'); sync(); },260); });
+    icd.addEventListener('input',sync);
+    window.v55SyncInputCard=sync;
+  }
   // v54：點輸入卡的空白處也會聚焦標題框（以前點到空白→沒聚焦→打「9/24」會誤觸快捷鍵跑進搜尋）
   const ic=document.querySelector('.inputCard');
   if (ic) ic.addEventListener('click',e=>{
@@ -2016,6 +2087,8 @@ document.getElementById('spaceBtn').onclick=()=>{
 
 /* ───────── 主畫面 ───────── */
 const expandedDetail=new Set();
+const openCards=new Set();       // v55：清單列模式下，哪些任務被點開成完整卡片
+const openChecklist=new Set();   // v55：卡片密度下，哪些長勾選清單被展開
 const fullDetail=new Set();      // v54：哪些卡的長內文已「展開全文」（預設先收成 6 行）
 let justAddedId=null;            // v54：剛加入的任務 → 新卡亮一下，回饋看得見
 const editingText=new Set();     // 內文編輯中
@@ -2087,6 +2160,7 @@ function render(){
   document.getElementById('stats').style.display = (inTasks&&settings.ui.stats!==false)?'flex':'none';
   document.querySelector('.toolRow .filters').style.display = settings.ui.filters===false?'none':'flex';
   document.querySelector('.toolRow').style.display = inTasks?'flex':'none';
+  { const _sb=document.getElementById('taskSortBox'); if (_sb) _sb.style.display = (inTasks && view==='list') ? 'flex' : 'none'; }   // v55：排序＋密度併進工具列
   document.getElementById('sections').style.display = (inTasks&&view==='list')?'':'none';
   document.getElementById('calendar').style.display = (inTasks&&(view==='cal'||view==='quad'))?'':'none';
   document.getElementById('tracker').style.display = module==='track'?'':'none';
@@ -2128,6 +2202,15 @@ function render(){
 }
 
 function renderList(){
+  if (!(settings.ui||{}).v55Mig){   // v55 一次性：新版以時間分組為主，排序切回智慧分區並明講（可改回）
+    settings.ui=settings.ui||{}; settings.ui.v55Mig=1;
+    const _lbl={dueAsc:'期限近→遠',dueDesc:'期限遠→近',urgent:'緊急→不急',calm:'不急→緊急',newest:'加入新→舊',oldest:'加入舊→新'};
+    if (tasks.length){
+      settings.ui.v55Note = (settings.taskSort && settings.taskSort!=='smart') ? (_lbl[settings.taskSort]||settings.taskSort) : true;
+      settings.taskSort='smart';
+    }
+    saveSettings();
+  }
   let visible = spaceTasks().filter(t=>filterCat==='全部'||t.cat===filterCat);
   if (doerFilter==='me')
     visible=visible.filter(t=> t.status==='done' || (t.status==='todo' && t.type!=='👀 追蹤'));
@@ -2164,7 +2247,8 @@ function renderList(){
     if (n!==null && n<=(settings.orangeDays||7)) return 1;
     return 2;
   };
-  const fire = active.filter(t=>bucket(t)===0).sort(impFirst);
+  const stale = active.filter(isStaleOverdue).sort(impFirst);
+  const fire = active.filter(t=>bucket(t)===0 && !isStaleOverdue(t)).sort(impFirst);
   const week = active.filter(t=>bucket(t)===1).sort(impFirst);
   const later= active.filter(t=>bucket(t)===2).sort(impFirst);
   waiting.sort((a,b)=>{
@@ -2272,14 +2356,34 @@ function renderList(){
     hint.textContent='（此排序下 ⠿ 拖曳不生效）';
     srow.appendChild(hint);
   }
-  secs.appendChild(srow);
+  const dt=document.createElement('span'); dt.className='densToggle'; dt.title='任務的呈現密度：列＝一行一件、點開看細節；卡片＝每件都是完整卡片';
+  [['row','☰ 列'],['card','▦ 卡片']].forEach(([k,l])=>{
+    const b=document.createElement('button'); b.textContent=l; b.id='dens_'+k;
+    if (taskDensity()===k) b.className='on';
+    b.onclick=()=>{ settings.taskDensity=k; saveSettings(); openCards.clear(); render(); };
+    dt.appendChild(b);
+  });
+  srow.appendChild(dt);
+  { const _sb=document.getElementById('taskSortBox');   // v55：不再獨佔一行，放進工具列
+    if (_sb){ _sb.innerHTML=''; srow.style.margin='0'; _sb.appendChild(srow); } else secs.appendChild(srow); }
+  if ((settings.ui||{}).v55Note){
+    const nt=document.createElement('div'); nt.className='v55Note';
+    const tx=document.createElement('span'); tx.style.flex='1';
+    tx.textContent='🆕 改成一行一件了：點一列看細節，右上可切回「▦ 卡片」。'
+      +(settings.ui.v55Note!==true?'排序先切回「智慧分區」（原本「'+settings.ui.v55Note+'」，左邊可改回）。':'');
+    const ok=document.createElement('button'); ok.className='qbtn'; ok.textContent='知道了';
+    ok.onclick=()=>{ delete settings.ui.v55Note; saveSettings(); render(); };
+    nt.appendChild(tx); nt.appendChild(ok); secs.appendChild(nt);
+  }
   const flat=FLAT_SORTS[sortMode];
   if (flat){
     secs.appendChild(section(flat.title, [...active].sort(flat.cmp), '沒有排隊中的任務喵🐾'));
   } else {
-  secs.appendChild(section('🔥 最急（逾期／今明到期）', fire, '目前沒有急件，呼嚕嚕～'));
-  secs.appendChild(section('📅 一週內', week, '本週暫無到期任務喵'));
-  secs.appendChild(section('🐢 之後慢慢來（無期限）', later, '沒有排隊中的任務喵🐾'));
+  // v55：空的時間分組不佔版面（以前空分區會放一隻大貓，第一件任務被擠到螢幕外）
+  if (fire.length) secs.appendChild(section('🔥 現在要做（今明到期／剛逾期／標急）', fire, ''));
+  if (week.length) secs.appendChild(section('📅 一週內', week, ''));
+  secs.appendChild(section('🐢 之後與沒有期限', later, '沒有排隊中的任務喵🐾'));
+  if (stale.length) secs.appendChild(section('🕰 擱了一陣子（逾期超過 7 天——點開重排：改期限、改成無期限或封存都可以）', stale, '', '', true));
   }
   secs.appendChild(section('⏳ 等對方回覆（到追蹤日會變紅提醒你催）', waiting, '空的喵。寄出信之後在卡片上按「⏳ 等回覆」，任務就會移來這裡幫你排催辦', 'waitSec'));
 
@@ -2304,12 +2408,98 @@ function renderList(){
   secs.appendChild(det);
 }
 
-function section(title, list, emptyMsg, cls){
+function taskDensity(){ return (settings && settings.taskDensity)==='card' ? 'card' : 'row'; }
+/* v55：清單列模式下，正在編輯／開著任何行內選單的任務一律以完整卡片呈現，避免操作到一半縮回去 */
+function taskIsOpen(t){
+  return openCards.has(t.id) || editingTitle.has(t.id) || editingText.has(t.id) || openPicker.has(t.id) || openSubs.has(t.id)
+      || openDue.has(t.id) || openWait.has(t.id) || openCatPick.has(t.id) || openComments.has(t.id);
+}
+function renderTaskItem(t){ return (taskDensity()==='card' || taskIsOpen(t)) ? taskCard(t) : taskRow(t); }
+function taskRow(t){
+  const row=document.createElement('div');
+  row.className='taskRow'; row.dataset.tid=t.id; row.tabIndex=0;
+  row.setAttribute('role','button'); row.setAttribute('aria-label','展開任務：'+t.title);
+  if (justAddedId && t.id===justAddedId){ row.classList.add('justAdded'); setTimeout(()=>{ if (justAddedId===t.id) justAddedId=null; },1900); }
+  bindSwipeDone(row, t);
+  const open=()=>{ openCards.add(t.id); render(); };
+  row.onclick=open;
+  row.onkeydown=e=>{ if (e.key==='Enter' || e.key===' '){ e.preventDefault(); open(); } };
+  if (t.status!=='done'){
+    const dh=document.createElement('span'); dh.className='dragHandle'; dh.textContent='⠿';
+    dh.title='按住拖曳，放到別列的上/下即可手動排序';
+    dh.onclick=e=>e.stopPropagation();
+    dh.onpointerdown=e=>{ e.stopPropagation(); startTaskDrag(e, t, row); };
+    row.appendChild(dh);
+    const db=document.createElement('button'); db.className='rowDone'; db.textContent='✔';
+    db.title='完成'; db.setAttribute('aria-label','完成：'+t.title);
+    db.onclick=e=>{ e.stopPropagation(); completeTask(t); render(); };
+    row.appendChild(db);
+  }
+  if (t.tags.includes('重要')){ const st=document.createElement('span'); st.className='rowStar'; st.textContent='⭐'; st.title='重要'; row.appendChild(st); }
+  const ti=document.createElement('span'); ti.className='rowTitle'; ti.textContent=t.title; ti.title=t.title; row.appendChild(ti);
+  if (t.comments && t.comments.filter(c=>!c.done).length){
+    const cm=document.createElement('span'); cm.className='rowMeta'; cm.textContent='💬'+t.comments.filter(c=>!c.done).length; row.appendChild(cm);
+  }
+  if (t.subs && t.subs.length){
+    const sm=document.createElement('span'); sm.className='rowMeta';
+    sm.textContent='☑ '+t.subs.filter(x=>x.done).length+'/'+t.subs.length; sm.title='勾選清單進度'; row.appendChild(sm);
+  }
+  if (t.who){ const w=document.createElement('span'); w.className='rowMeta mobHide'; w.textContent='👤 '+t.who; row.appendChild(w); }
+  if (inAllView()){ const sc=document.createElement('span'); sc.className='rowMeta'; sc.textContent=spaceIcon(t.space); row.appendChild(sc); }
+  if (t.cat && t.cat!==fallbackCat() && catInfo(t.cat).vis!=='hideTag'){
+    const dot=document.createElement('span'); dot.className='rowDot '+colorClass(t.cat); dot.title='專案：'+t.cat; row.appendChild(dot);
+    const cn=document.createElement('span'); cn.className='rowMeta mobHide'; cn.textContent=t.cat; row.appendChild(cn);
+  }
+  if (t.status==='waiting'){
+    const f=fromISO(t.followUp), n=f?daysUntil(f):null;
+    const w=document.createElement('span'); w.className='rowDue'+(n!==null&&n<=0?' lv-red':' lv-yellow');
+    w.textContent = f ? (n<=0?'⏰ 該催了':'⏳ '+fmtDate(f)+' 追蹤') : '⏳ 等回覆'; row.appendChild(w);
+  } else if (t.status==='todo'){
+    const u=urgency(t);
+    if (u.level!=='gray' || (t.tags||[]).includes('急')){
+      const du=document.createElement('span');
+      const stale=isStaleOverdue(t);
+      du.className='rowDue '+(stale?'stale':'lv-'+u.level);
+      du.textContent = stale ? '🕰 擱了 '+(-daysUntil(fromISO(t.due)))+' 天' : u.label.replace(/^[🔴🟠🟡🔥]\s*/u,'')+((t.due&&t.time)?' ⏰'+t.time:'');
+      row.appendChild(du);
+    }
+  }
+  const ch=document.createElement('span'); ch.className='rowChev'; ch.textContent='▾'; row.appendChild(ch);
+  return row;
+}
+/* 📱 手勢：待辦往右滑＝完成（卡片與清單列共用） */
+function bindSwipeDone(card, t){
+  if (!(t.status==='todo' && 'ontouchstart' in window)) return;
+  let sx=0, sy=0, dx=0, dyA=0, sw=false;
+  card.addEventListener('touchstart', e=>{
+    if (e.touches.length!==1 || e.target.closest('input,textarea,select,button,.subList,.titleEdit,.trkNote')){ sw=false; return; }
+    sx=e.touches[0].clientX; sy=e.touches[0].clientY; dx=0; dyA=0; sw=true;
+  }, {passive:true});
+  card.addEventListener('touchmove', e=>{
+    if (!sw) return;
+    const sel=window.getSelection();
+    if (sel && !sel.isCollapsed){ sw=false; card.style.transform=''; card.style.outline=''; return; }
+    dx=e.touches[0].clientX-sx; dyA=Math.abs(e.touches[0].clientY-sy);
+    if (dyA>36){ sw=false; card.style.transform=''; card.style.outline=''; return; }
+    if (dx>14){
+      card.style.transition='none';
+      card.style.transform='translateX('+Math.min(dx-14,96)+'px)';
+      card.style.outline = dx>84 ? '2.5px solid var(--green)' : '';
+    }
+  }, {passive:true});
+  card.addEventListener('touchend', ()=>{
+    if (!sw) return; sw=false;
+    const hit = dx>84 && dyA<=36;
+    card.style.transition='transform .16s'; card.style.transform=''; card.style.outline='';
+    if (hit){ completeTask(t); render(); }
+  }, {passive:true});
+}
+function section(title, list, emptyMsg, cls, defFold){
   const d=document.createElement('div');
   d.className='section'+(cls?' '+cls:'');
-  // 收合邏輯：手動動過＝照你的意思記憶；沒動過＝自動（空的收合、有內容展開）
+  // 收合邏輯：手動動過＝照你的意思記憶；沒動過＝自動（空的收合、有內容展開；defFold＝預設就收合）
   const manual=settings.secFoldM[title];
-  const folded = manual!==undefined ? manual==='fold' : list.length===0;
+  const folded = manual!==undefined ? manual==='fold' : (list.length===0 || !!defFold);
   const h=document.createElement('h2');
   h.className='foldHead';
   // 標題的（補充說明）降成小字：掃視時只看到重點，說明還在但不搶戲
@@ -2326,11 +2516,11 @@ function section(title, list, emptyMsg, cls){
   d.appendChild(h);
   if (folded) return d;   // 收合＝只留標題和數量
   if (!list.length){
-    const e=document.createElement('div'); e.className='empty'; e.textContent=emptyMsg;
+    const e=document.createElement('div'); e.className='emptyLine'; e.textContent=emptyMsg;   // v55：空狀態縮成一行小字
     d.appendChild(e);
   } else {
-    const g=document.createElement('div'); g.className='secGrid';
-    list.forEach(t=>g.appendChild(taskCard(t)));
+    const g=document.createElement('div'); g.className='secGrid'+(taskDensity()==='row'?' rows':'');
+    list.forEach(t=>g.appendChild(renderTaskItem(t)));
     d.appendChild(g);
   }
   return d;
@@ -2396,7 +2586,7 @@ function startTaskDrag(e, t, card){
   const move=ev=>{
     if (!taskDrag) return;
     const el=document.elementFromPoint(ev.clientX, ev.clientY);
-    const over=el && el.closest('.task[data-tid]');
+    const over=el && el.closest('.task[data-tid], .taskRow[data-tid]');
     clearMarks();
     if (!over || over===card || over.parentElement!==grid){ taskDrag.target=null; return; }
     const r=over.getBoundingClientRect();
@@ -2411,7 +2601,7 @@ function startTaskDrag(e, t, card){
     const st=taskDrag; taskDrag=null;
     clearMarks();
     if (!st || !st.target) return;
-    const ids=[...st.grid.querySelectorAll(':scope > .task')].map(el=>el.dataset.tid);
+    const ids=[...st.grid.querySelectorAll(':scope > .task, :scope > .taskRow')].map(el=>el.dataset.tid);
     const from=ids.indexOf(String(st.t.id));
     if (from>-1) ids.splice(from,1);
     let at=ids.indexOf(st.target.dataset.tid);
@@ -2430,32 +2620,12 @@ function taskCard(t){
   card.className='task';
   card.dataset.tid=t.id;   // 反黑加註解要靠它找回是哪張卡
   if (justAddedId && t.id===justAddedId){ card.classList.add('justAdded'); setTimeout(()=>{ if (justAddedId===t.id) justAddedId=null; },1900); }
-  // 📱 手勢：待辦卡往右滑＝完成（跟手位移、過閾值亮綠框、放手觸發）。
-  // 防誤觸：輸入框/子清單內不啟動、正在反黑選字不啟動、垂直捲動不啟動。桌機無 touch 天然不生效
-  if (t.status==='todo' && 'ontouchstart' in window){
-    let sx=0, sy=0, dx=0, dyA=0, sw=false;
-    card.addEventListener('touchstart', e=>{
-      if (e.touches.length!==1 || e.target.closest('input,textarea,select,button,.subList,.titleEdit,.trkNote')){ sw=false; return; }
-      sx=e.touches[0].clientX; sy=e.touches[0].clientY; dx=0; dyA=0; sw=true;
-    }, {passive:true});
-    card.addEventListener('touchmove', e=>{
-      if (!sw) return;
-      const sel=window.getSelection();
-      if (sel && !sel.isCollapsed){ sw=false; card.style.transform=''; card.style.outline=''; return; }
-      dx=e.touches[0].clientX-sx; dyA=Math.abs(e.touches[0].clientY-sy);
-      if (dyA>36){ sw=false; card.style.transform=''; card.style.outline=''; return; }
-      if (dx>14){
-        card.style.transition='none';
-        card.style.transform='translateX('+Math.min(dx-14,96)+'px)';
-        card.style.outline = dx>84 ? '2.5px solid var(--green)' : '';
-      }
-    }, {passive:true});
-    card.addEventListener('touchend', ()=>{
-      if (!sw) return; sw=false;
-      const hit = dx>84 && dyA<=36;
-      card.style.transition='transform .16s'; card.style.transform=''; card.style.outline='';
-      if (hit){ completeTask(t); render(); }
-    }, {passive:true});
+  bindSwipeDone(card, t);   // 📱 往右滑＝完成（v55 起與清單列共用）
+  if (taskDensity()==='row' && t.status!=='done' && module==='tasks' && view==='list'){
+    const cb=document.createElement('button'); cb.className='rowCollapse'+((t.comments&&t.comments.length)?' shift':'');
+    cb.textContent='▴ 收合'; cb.title='收回成一行';
+    cb.onclick=()=>{ [openCards,openPicker,openSubs,openDue,openCatPick,openComments].forEach(x=>x.delete(t.id)); render(); };
+    card.appendChild(cb);
   }
   const u=urgency(t);
   if (t.status==='todo' && u.level==='red') card.classList.add('overdue');
@@ -2670,7 +2840,19 @@ function taskCard(t){
       ar.append(ai,ab);
       box.appendChild(ar);
     }
-    card.appendChild(box);
+    // v55：卡片密度下，超過 3 項的勾選清單先收成進度條（不然一張卡就佔半個螢幕）；清單列模式是使用者自己點開的，照常全顯示
+    const _longSubs = taskDensity()==='card' && t.subs.length>3 && !openSubs.has(t.id);
+    if (_longSubs){
+      const _dn=t.subs.filter(x=>x.done).length;
+      const bar=document.createElement('div'); bar.className='subBar';
+      const fi=document.createElement('i'); fi.style.width=Math.round(_dn/t.subs.length*100)+'%'; bar.appendChild(fi);
+      const tg=document.createElement('button'); tg.className='detailToggle';
+      const isOpen=openChecklist.has(t.id);
+      tg.textContent=(isOpen?'▴ 收起清單':'▾ 展開清單')+'（'+_dn+'/'+t.subs.length+'）';
+      tg.onclick=()=>{ isOpen?openChecklist.delete(t.id):openChecklist.add(t.id); render(); };
+      card.appendChild(bar); card.appendChild(tg);
+      if (isOpen) card.appendChild(box);
+    } else card.appendChild(box);
   }
 
   const meta=document.createElement('div');
@@ -2687,6 +2869,7 @@ function taskCard(t){
     catChip.textContent='📂 '+t.cat;
     catChip.title='點擊選擇專案';
     catChip.onclick=()=>{ openCatPick.has(t.id)?openCatPick.delete(t.id):openCatPick.add(t.id); render(); };
+    if (t.cat===fallbackCat()) catChip.style.opacity='.45';   // v55：預設專案＝沒資訊量，淡化（仍可點來改）
     meta.appendChild(catChip);
   }
   const typeChip=document.createElement('span');
@@ -2761,6 +2944,7 @@ function taskCard(t){
     urgChip.className='chip clickable urg-'+u.level;
     urgChip.textContent=u.label+((t.due&&t.time)?('　⏰'+t.time):'');
     urgChip.title='點擊修改期限／時間';
+    if (u.level==='gray' && !t.due) urgChip.style.opacity='.45';   // v55：無期限＝預設值，淡化
     urgChip.onclick=()=>{ openDue.has(t.id)?openDue.delete(t.id):openDue.add(t.id); render(); };
     meta.appendChild(urgChip);
     if (t.start && t.due){
