@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
 <meta name="theme-color" content="#9aab60">
-<script>window.APP_BUILD='v56-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
+<script>window.APP_BUILD='v57-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -602,6 +602,74 @@
   .pbInfo a{color:var(--blue); text-decoration:none;}
   .pbInfo a:hover{text-decoration:underline;}
   .pbNote{font-size:12.5px; color:var(--sub); width:100%; padding-left:2px;}
+
+  /* ── v57 電話簿：一人一行、欄位對齊（以前一人三行：資料、空白備註框、孤零零的 🕐 鈕） ── */
+  .pbPerson{padding:5px 6px; border-radius:8px; transition:background .12s;}
+  .pbPerson:hover{background:var(--cell-bg);}
+  .pbPerson .pbId{display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap; min-width:0;}
+  .pbPerson .pbName{font-size:15px;}
+  .pbPerson .pbPhone, .pbPerson .pbEmail{font-size:13.5px; color:var(--ink); overflow-wrap:anywhere;}
+  .pbPerson .pbInfo .qbtn{padding:1px 6px; background:none; border-color:transparent; font-size:12.5px;}
+  .pbPerson .pbActs{display:inline-flex; gap:3px; align-items:center; margin-left:auto; flex-wrap:nowrap;}
+  .pbPerson .pbActs .qbtn{white-space:nowrap;}
+  @media (pointer:fine){ .pbPerson .pbActs .qbtn{min-height:28px; padding:2px 9px; font-size:12.5px;} .pbPerson .pbInfo .qbtn{min-height:22px;} }
+  .pbPerson .pbNote.isEmpty{display:none;}
+  .pbPerson .pbNote{display:flex; gap:6px; align-items:center;}
+  .pbPerson .pbNote .cellInput{border-color:transparent; background:transparent; color:var(--muted2);}
+  .pbPerson .pbNote .cellInput:hover, .pbPerson .pbNote .cellInput:focus{border-color:var(--line); background:var(--card); color:var(--ink);}
+  @media (min-width:900px){
+    /* 最後一欄用固定寬：每一列是各自獨立的格線，若用 auto，按鈕數不同的列欄寬就會不同、電話欄對不齊 */
+    .pbPerson{display:grid; grid-template-columns:minmax(220px,1.2fr) 176px minmax(230px,1.5fr) 236px; column-gap:14px; row-gap:1px; align-items:center;}
+    .pbPerson > .pbId{grid-column:1; grid-row:1;}
+    .pbPerson > .pbPhone{grid-column:2; grid-row:1;}
+    .pbPerson > .pbEmail{grid-column:3; grid-row:1;}
+    .pbPerson > .pbActs{grid-column:4; grid-row:1; justify-content:flex-end;}
+    .pbPerson > .pbNote{grid-column:1 / -1; grid-row:2; width:auto;}
+  }
+  @media (hover:hover){
+    .pbPerson .pbInfo .qbtn, .pbPerson .pbActs .qbtn, .pbPerson .pbNote .qbtn{opacity:.28; transition:opacity .12s;}
+    .pbPerson:hover .qbtn, .pbPerson:focus-within .qbtn{opacity:1;}
+  }
+  /* ── v57 網站收藏 ── */
+  .siteRow{padding:9px 6px; border-radius:8px;}
+  .siteRow:hover{background:var(--cell-bg);}
+  .siteRow .pbName{font-size:15px;}
+  .siteRow .pbNote .cellInput{border-color:transparent; background:transparent; color:var(--muted2); padding-left:26px;}
+  .siteRow .pbNote .cellInput:hover, .siteRow .pbNote .cellInput:focus{border-color:var(--line); background:var(--card); color:var(--ink);}
+  @media (hover:hover){ .siteRow > .qbtn{opacity:.3; transition:opacity .12s;} .siteRow:hover > .qbtn, .siteRow:focus-within > .qbtn{opacity:1;} }
+  /* ── v57 說明書：一份一列、標題不再把按鈕擠到下一行 ── */
+  .trkCard.manCard{padding:9px 14px; margin-bottom:8px;}
+  .manCard .manHead{flex-wrap:nowrap; gap:8px; align-items:center;}
+  .manCard .manHead .tTitle{flex:1 1 auto; min-width:0; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .manCard.isOpen .manHead{align-items:flex-start;}
+  .manCard.isOpen .manHead .tTitle{white-space:normal; overflow:visible;}
+  .manCard .manHead .memberTag, .manCard .manHead .qbtn{flex:none;}
+  @media (pointer:fine){ .manCard .manHead .qbtn{min-height:28px; padding:2px 9px;} }
+  .manCard .manHead .spacer{display:none;}
+  .manCard .manBody{margin-top:10px; padding:4px 2px 2px 12px; border-left:3px solid var(--line); font-size:15px; line-height:1.75; color:var(--ink);
+    white-space:pre-wrap; word-break:break-word; max-width:46em;}
+  @media (hover:hover){ .manCard .manHead .qbtn:not(.manPin){opacity:.3; transition:opacity .12s;} .manCard:hover .manHead .qbtn, .manCard:focus-within .manHead .qbtn{opacity:1;} }
+  @media (max-width:600px){ .manCard .manHead{flex-wrap:wrap;} .manCard .manHead .tTitle{white-space:normal;} }
+  /* ── v57 追蹤表：降噪——空白控制項滑到該列才浮現、逾期不再整列紅字 ── */
+  .trkTable.trkMain td{padding:4px 8px;}
+  .trkTable.trkMain tbody tr:hover td{background:var(--cell-bg);}
+  .trkTable.trkMain .rOver .rName{color:var(--ink); font-weight:600;}   /* 權重要高過後面的舊規則（紅字） */
+  .trkTable tr.rOver > td:first-child{box-shadow:inset 3px 0 0 var(--red);}
+  .trkTable .rDue.rPh{color:var(--faint);}
+  .trkTable .rNoteIn{border-color:transparent; background:transparent;}
+  .trkTable .rNoteIn::placeholder{color:transparent;}
+  .trkTable tr:hover .rNoteIn, .trkTable .rNoteIn:focus{border-color:var(--line); background:var(--card);}
+  .trkTable tr:hover .rNoteIn::placeholder, .trkTable .rNoteIn:focus::placeholder{color:var(--muted2);}
+  .trkTable .rSkipBtn{filter:grayscale(1); background:none; border-color:transparent; padding:1px 8px;}
+  .trkTable.trkMain .rPickBtn{padding:1px 9px; font-size:12.5px;}
+  .trkTable.trkMain .rNoteIn{padding:2px 8px; height:27px;}
+  @media (pointer:fine){ .trkTable.trkMain .qbtn{padding-top:2px; padding-bottom:2px; min-height:26px;} }
+  .trkTable.trkMain .rNoteIn{min-height:0;}
+  .trkTable .rSkipBtn:hover{filter:none; background:var(--red-bg);}
+  @media (hover:hover){
+    .trkTable .rSkipBtn, .trkTable .rPickBtn{opacity:0; transition:opacity .12s;}
+    .trkTable tr:hover .rSkipBtn, .trkTable tr:hover .rPickBtn, .trkTable .rSkipBtn:focus-visible, .trkTable .rPickBtn:focus-visible{opacity:1;}
+  }
 
   /* ── 回傳追蹤區 ── */
   .trkCard{background:var(--card); border:2px solid var(--line); border-radius:18px; padding:14px; margin-bottom:12px; box-shadow:0 2px 8px rgba(180,140,100,.07);}
@@ -3748,7 +3816,7 @@ function mkPbLinksBox(owner, sp, hint, key, defaults){
       hint));
   } else {
     const ab=document.createElement('button'); ab.className='qbtn';
-    ab.textContent=owner.pbIds.length?'＋':'＋選聯絡人';
+    ab.textContent=owner.pbIds.length?'＋':'＋選聯絡人'; ab.classList.add('rPickBtn');
     ab.title='從電話簿加一位（可加多位，各自用 ✎ 標註負責什麼）';
     ab.onclick=()=>{ uiTrk.pbPick=key; renderTracker(); };
     box.appendChild(ab);
@@ -4631,7 +4699,7 @@ function trackerCard(trk){
       } else if (trk.due){
         c3.textContent=fmtDate(fromISO(trk.due))+'（統一）';
       } else {
-        c3.textContent='—（點我設定）';
+        c3.textContent='—'; c3.classList.add('rPh'); c3.title='還沒有期限——點這格設定';
       }
       c3.onclick=()=>{ uiTrk.rowDueOpen = uiTrk.rowDueOpen===key?null:key; renderTracker(); };
       tr.appendChild(c3);
@@ -4650,12 +4718,12 @@ function trackerCard(trk){
       tr.appendChild(c4);
       const c5=document.createElement('td');
       const ni=document.createElement('input'); ni.className='miniInput'; ni.style.width='150px';
-      ni.placeholder='…'; ni.value=row.note||'';
+      ni.placeholder='＋備註'; ni.classList.add('rNoteIn'); ni.value=row.note||'';
       ni.onchange=()=>{ row.note=ni.value; saveTrack(); };
       c5.appendChild(ni); tr.appendChild(c5);
       // 🚫 退出計畫（保留編號，不再列入追蹤）
       const c6=document.createElement('td'); c6.style.whiteSpace='nowrap';
-      const sk=document.createElement('button'); sk.className='qbtn';
+      const sk=document.createElement('button'); sk.className='qbtn'+(row.skipped?'':' rSkipBtn');
       if (row.skipped){
         sk.textContent='↩ 恢復'; sk.title='恢復追蹤這一位';
         sk.onclick=()=>{ row.skipped=false; saveTrack(); renderTracker(); };
@@ -5948,30 +6016,32 @@ function renderPhonebook(){
         g.appendChild(pbForm(p, d=>{ Object.assign(p,d); uiPB.editing=null; savePB(); renderPhonebook(); }));
         return;
       }
-      const row=document.createElement('div'); row.className='pbRow';
+      const row=document.createElement('div'); row.className='pbRow pbPerson';
       row.dataset.pid=p.id;   // 反黑加註解用
+      const idb=document.createElement('span'); idb.className='pbId';   // v57：名字＋職稱＋標籤收成一格，電話/Email 才對得齊
+      row.appendChild(idb);
       if (uiPB.batch && !inAllView()){
         const cb=document.createElement('input'); cb.type='checkbox';
         cb.style.cssText='width:17px;height:17px;accent-color:var(--red);cursor:pointer;margin:0;';
         cb.checked=uiPB.sel.has(p.id);
         cb.onchange=()=>{ cb.checked?uiPB.sel.add(p.id):uiPB.sel.delete(p.id); renderPhonebook(); };
-        row.appendChild(cb);
+        idb.appendChild(cb);
       }
       if (inAllView()){
         const si=document.createElement('span'); si.className='pbInfo';
         si.textContent=spaceIcon(p.space);
         si.title=(p.space||'work')==='life'?'私人':'工作';
-        row.appendChild(si);
+        idb.appendChild(si);
       }
       const nm=document.createElement('span'); nm.className='pbName'; nm.textContent=p.name;
-      row.appendChild(nm);
+      idb.appendChild(nm);
       if (p.role){
         const rl=document.createElement('span'); rl.className='pbInfo'; rl.textContent=p.role;
-        row.appendChild(rl);
+        idb.appendChild(rl);
       }
       (p.programs||[]).forEach(pr=>{
         const c=document.createElement('span'); c.className='chip mobHide '+colorClass(pr); c.textContent=pr;
-        row.appendChild(c);
+        idb.appendChild(c);
       });
       // 📦 這個人負責的追蹤項目（點了直接跳過去；用 📞 欄連結或名字相符都算）
       const inTrks=trackers.filter(t=>spaceMatch(t.space) && !t.archived
@@ -5986,18 +6056,18 @@ function renderPhonebook(){
             if (el){ el.scrollIntoView({behavior:'smooth',block:'start'}); el.style.outline='2px solid var(--accent)';
               setTimeout(()=>{ el.style.outline=''; },1800); } },0);
         };
-        row.appendChild(c);
+        idb.appendChild(c);
       });
       if (inTrks.length>3){
         const c=document.createElement('span'); c.className='chip type mobHide';
         c.textContent='📦 +'+(inTrks.length-3);
         c.title=inTrks.slice(3).map(t=>t.title).join('、');
-        row.appendChild(c);
+        idb.appendChild(c);
       }
       // 電話/Email 不做超連結（點了會跳撥號/寄信很干擾）——改成純文字＋📋 一鍵複製
       if (p.phone){
         const s=document.createElement('span'); s.className='pbInfo';
-        s.appendChild(document.createTextNode('📞 '+p.phone));
+        s.classList.add('pbPhone'); s.appendChild(document.createTextNode('📞 '+p.phone));
         const cb2=document.createElement('button'); cb2.className='qbtn'; cb2.innerHTML=riIcon('copy');
         cb2.title='複製電話';
         cb2.onclick=()=>copyText(p.phone,'電話複製好了！');
@@ -6005,13 +6075,13 @@ function renderPhonebook(){
       }
       if (p.email){
         const s=document.createElement('span'); s.className='pbInfo';
-        s.appendChild(document.createTextNode('✉️ '+p.email));
+        s.classList.add('pbEmail'); s.appendChild(document.createTextNode('✉️ '+p.email));
         const cb2=document.createElement('button'); cb2.className='qbtn'; cb2.innerHTML=riIcon('copy');
         cb2.title='複製 Email（貼到信箱收件人）';
         cb2.onclick=()=>copyText(p.email,'Email 複製好了，直接貼到收件人吧！');
         s.appendChild(cb2); row.appendChild(s);
       }
-      const sp=document.createElement('span'); sp.style.flex='1'; row.appendChild(sp);
+      const acts=document.createElement('span'); acts.className='pbActs'; row.appendChild(acts);   // v57：動作鈕收成一組靠右
       // 📮 一鍵建追蹤任務（業務催客戶、行政催窗口都用得上）
       const fu=document.createElement('button'); fu.className='qbtn mobHide'; fu.textContent='＋追蹤任務';
       fu.title='在 🏡 任務小窩建立一件「聯絡'+p.name+'」的追蹤任務（要催對方的時候用）';
@@ -6024,10 +6094,17 @@ function renderPhonebook(){
         learnContact(p.name); save();
         toast('✅ 已在任務小窩建立「聯絡 '+p.name+'」（寄出後記得按 ⏳ 等回覆）','前往任務',()=>jumpToTask(nt));
       };
-      row.appendChild(fu);
+      acts.appendChild(fu);
+      if (!p.note){   // v57：沒備註的人不再常駐一個空白輸入框，要寫再按這顆打開
+        const nb=document.createElement('button'); nb.className='qbtn mobHide'; nb.textContent='📝';
+        nb.title='加備註（聯絡歷程、注意事項…）';
+        nb.onclick=()=>{ uiPB.noteOpen = uiPB.noteOpen===p.id ? null : p.id; renderPhonebook();
+          if (uiPB.noteOpen===p.id) setTimeout(()=>{ const i=document.querySelector('.pbPerson[data-pid="'+p.id+'"] .pbNote input'); if (i) i.focus(); },0); };
+        acts.appendChild(nb);
+      }
       const eb=document.createElement('button'); eb.className='qbtn'; eb.innerHTML=riIcon('pencil'); eb.title='編輯';
       eb.onclick=()=>{ uiPB.editing=p.id; renderPhonebook(); };
-      row.appendChild(eb);
+      acts.appendChild(eb);
       const del=document.createElement('button'); del.className='qbtn mobHide';
       if (uiPB.delPending===p.id){
         del.textContent='確定刪除？'; del.style.cssText='background:var(--red);color:var(--on-red,#fff);';
@@ -6040,12 +6117,13 @@ function renderPhonebook(){
           renderPhonebook();
         };
       }
-      row.appendChild(del);
+      acts.appendChild(del);
       // 備註：直接點著打，自動儲存
       const ntWrap=document.createElement('span'); ntWrap.className='pbNote mobHide';   // 📱 手機只留 名字/職稱/電話/Email/✎
+      if (!p.note && uiPB.noteOpen!==p.id) ntWrap.classList.add('isEmpty');
       const nt=document.createElement('input'); nt.className='cellInput';
       nt.style.cssText='width:100%;font-size:12.5px;';
-      nt.placeholder='📝 備註…（點我直接打，自動儲存）';
+      nt.placeholder='📝 備註…（打完自動儲存）';
       nt.value=p.note||'';
       nt.onchange=()=>{ p.note=nt.value.trim(); savePB(); };
       ntWrap.appendChild(nt);
@@ -6181,7 +6259,7 @@ function renderSites(){
       g.appendChild(siteForm(s, d=>{ Object.assign(s,d); uiSites.editing=null; saveSites(); renderSites(); }));
       return;
     }
-    const row=document.createElement('div'); row.className='pbRow';
+    const row=document.createElement('div'); row.className='pbRow siteRow';
     row.dataset.sid=s.id;   // 反黑加註解用
     if (inAllView()){
       const si=document.createElement('span'); si.className='pbInfo';
@@ -6212,7 +6290,7 @@ function renderSites(){
     const keyB=document.createElement('button'); keyB.className='qbtn';
     keyB.textContent='🔑'+((s.accounts||[]).length?' '+s.accounts.length:'');
     keyB.title='登入帳號密碼（可存多組）';
-    if (uiSites.accOpen===s.id){ keyB.style.background='var(--accent)'; keyB.style.color='#fff'; }
+    if (uiSites.accOpen===s.id){ keyB.style.background='var(--accent)'; keyB.style.color='var(--on-accent,#fff)'; }
     keyB.onclick=()=>{ uiSites.accOpen = uiSites.accOpen===s.id ? null : s.id; renderSites(); };
     row.appendChild(keyB);
     const arcS=document.createElement('button'); arcS.className='qbtn'; arcS.textContent='🗄'; arcS.title='封存這個收藏';
@@ -6394,14 +6472,14 @@ function renderManual(){
     return;
   }
   vis.forEach(m=>{
-    const c=document.createElement('div'); c.className='trkCard';
+    const c=document.createElement('div'); c.className='trkCard manCard'+(uiMan.open===m.id?' isOpen':'');
     c.dataset.mid=m.id;   // 反黑加註解用
     if (uiMan.editing===m.id){
       c.innerHTML='<div class="trkHead"><span class="tTitle">✏️ 編輯說明書</span></div>';
       manForm(c, m); wrap.appendChild(c); return;
     }
-    const h=document.createElement('div'); h.className='trkHead';
-    const pin=document.createElement('button'); pin.className='qbtn';
+    const h=document.createElement('div'); h.className='trkHead manHead';
+    const pin=document.createElement('button'); pin.className='qbtn manPin';
     pin.textContent= m.pinned?'📌':'📍'; pin.title= m.pinned?'取消釘選':'釘選到最上面';
     pin.style.opacity= m.pinned?'1':'.45';
     pin.onclick=()=>{ m.pinned=!m.pinned; saveManuals(); renderManual(); };
@@ -6438,7 +6516,7 @@ function renderManual(){
     c.appendChild(h);
     if (uiMan.open===m.id){
       const body=document.createElement('div');
-      body.style.cssText='margin-top:10px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;';
+      body.className='manBody';   // v57：內文比照任務長文規格（15px/1.75、正文色、閱讀寬上限）
       renderRich(body, m.text||'（還沒寫內容，按 ✎ 補上）');
       c.appendChild(body);
       const meta=document.createElement('div');
