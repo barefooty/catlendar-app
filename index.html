@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
 <meta name="theme-color" content="#9aab60">
-<script>window.APP_BUILD='v57-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
+<script>window.APP_BUILD='v58-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -602,6 +602,50 @@
   .pbInfo a{color:var(--blue); text-decoration:none;}
   .pbInfo a:hover{text-decoration:underline;}
   .pbNote{font-size:12.5px; color:var(--sub); width:100%; padding-left:2px;}
+
+  /* ── v58 日誌：左邊寫、右邊系統摘要（寬螢幕雙欄）；內文比照長文規格 ── */
+  .diaryGrid{display:grid; grid-template-columns:minmax(0,1fr); gap:0 14px; align-items:start;}
+  @media (min-width:1100px){
+    .diaryGrid{grid-template-columns:minmax(0,1fr) 340px;}
+    .diaryGrid.noAside{grid-template-columns:minmax(0,1fr);}
+    .diaryAside{position:sticky; top:12px;}
+  }
+  .diaryMain > .trkCard{padding-bottom:16px;}
+  .diaryBody{margin-top:6px; font-size:15px; line-height:1.8; color:var(--ink); white-space:pre-wrap; word-break:break-word; max-width:44em;}
+  .diaryBody b, .diaryBody strong{font-weight:700; background:linear-gradient(transparent 58%, var(--accent-soft) 58%); padding:0 1px;}
+  .diaryLabel{font-size:13.5px; font-weight:700; margin-top:12px; color:var(--muted);}
+  .diaryBody + .diaryLabel, .diaryTa + .diaryLabel{margin-top:18px; padding-top:14px; border-top:1px dashed var(--line);}
+  textarea.diaryTa{font-size:15px; line-height:1.75; min-height:120px; max-width:48em;}
+  .diaryLine{font-size:13.5px; margin-top:5px; line-height:1.6; color:var(--ink); padding-left:2px;}
+  .diaryAside .diaryLabel{margin-top:14px;}
+  .diaryStrip{display:grid; grid-template-columns:repeat(14,minmax(0,1fr)); gap:4px; margin-top:12px;}
+  @media (max-width:900px){ .diaryStrip{grid-template-columns:repeat(7,minmax(0,1fr));} }
+  .diaryStrip .dsDay{font-size:12.5px; padding:3px 2px; text-align:center; opacity:.62; white-space:nowrap; display:flex; justify-content:center; align-items:center;}
+  .diaryStrip .dsDay.has{opacity:1; font-weight:600;}
+  .diaryStrip .dsDay.on{opacity:1;}
+  .diaryMoodChip{background:none; border:1.5px solid var(--line); border-radius:999px; padding:2px 12px; font-size:15px; color:var(--sub); margin-left:8px;}
+  .diaryMoodChip.noMood{font-size:12.5px;}
+  .diaryMoodChip:hover{border-color:var(--accent); color:var(--accent);}
+  /* ── v58 專案：詳情區塊等高雙欄、每行「左標題右狀態」；列表卡去掉重複的佔位字 ── */
+  .projBlocks{display:grid; grid-template-columns:minmax(0,1fr); gap:14px; align-items:stretch;}
+  @media (min-width:1100px){ .projBlocks{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .projBlocks > .trkCard{margin-bottom:0;}
+  .projBlocks{margin-bottom:14px;}
+  .projLine{display:flex; gap:10px; align-items:baseline; font-size:14.5px; line-height:1.5; padding:5px 6px; margin-top:2px; border-radius:8px; color:var(--ink);}
+  .projLine.go{cursor:pointer;}
+  .projLine.go:hover{background:var(--cell-bg);}
+  .projLine .plMain{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .projLine .plMeta{flex:none; font-size:12.5px; color:var(--muted2); white-space:nowrap;}
+  .projLine.more{font-size:12.5px; color:var(--muted2);}
+  .projBlock .trkHead{margin-bottom:4px;}
+  .projHead textarea.trkNote{min-height:56px; font-size:14.5px; line-height:1.7;}
+  .projCard{display:flex; flex-direction:column; gap:6px; transition:box-shadow .15s, transform .15s;}
+  .projCard:hover{box-shadow:0 4px 12px rgba(120,90,60,.14); transform:translateY(-1px);}
+  .projCard .pcDesc{font-size:12.5px; color:var(--sub); line-height:1.5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .projCard .pcStats{display:flex; gap:12px; flex-wrap:wrap; font-size:12.5px; color:var(--muted2); margin-top:auto; padding-top:4px;}
+  .projCard .pcStats b{font-size:15px; color:var(--ink); font-weight:700; margin-left:3px;}
+  .projCard .pcStats .zero b{color:var(--muted2); font-weight:400;}   /* 0 也是要讀的數字，用 muted2 才過對比 */
+  .projCard .pcStats .warn, .projCard .pcStats .warn b{color:var(--red);}
 
   /* ── v57 電話簿：一人一行、欄位對齊（以前一人三行：資料、空白備註框、孤零零的 🕐 鈕） ── */
   .pbPerson{padding:5px 6px; border-radius:8px; transition:background .12s;}
@@ -6659,8 +6703,10 @@ function renderProjects(){
       const tN=tasks.filter(t=>(t.space||'work')===sp && t.cat===cat.name && t.status!=='done').length;
       const kN=trackers.filter(t=>(t.space||'work')===sp && !t.archived && (t.cat||'其他')===cat.name).length;
       const pN=pbook.filter(p=>(p.space||'work')===sp && (p.programs||[]).includes(cat.name)).length;
-      const c=document.createElement('div'); c.className='trkCard';
+      const c=document.createElement('div'); c.className='trkCard projCard';
       c.style.cssText+='cursor:pointer;margin-bottom:0;';
+      c.tabIndex=0; c.setAttribute('role','button'); c.setAttribute('aria-label','開啟專案：'+cat.name);
+      c.onkeydown=e=>{ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); c.click(); } };
       const h=document.createElement('div'); h.className='trkHead';
       const dot=document.createElement('span'); dot.className='colorDot '+dotClass(cat);
       dot.style.cursor='inherit';
@@ -6668,13 +6714,17 @@ function renderProjects(){
       tt.textContent=(spaces.length>1?spaceIcon(sp)+' ':'')+cat.name;
       h.append(dot,tt);
       c.appendChild(h);
-      const d1=document.createElement('div');
-      d1.style.cssText='font-size:12.5px;color:var(--sub);margin-top:6px;min-height:18px;';
-      d1.textContent=(cat.desc||'').split('\n')[0].slice(0,26) || '（點擊進入，寫下這個專案的說明）';
-      c.appendChild(d1);
-      const d2=document.createElement('div');
-      d2.style.cssText='font-size:12.5px;color:var(--sub);margin-top:6px;';
-      d2.textContent='🏡 任務 '+tN+'｜📦 追蹤 '+kN+'｜📞 聯絡人 '+pN;
+      // v58：沒寫說明就不放佔位字（以前每張卡都印同一句「點擊進入，寫下這個專案的說明」）；數字放大、0 淡化、急件才上紅字
+      const _d=(cat.desc||'').split('\n')[0].trim();
+      if (_d){ const d1=document.createElement('div'); d1.className='pcDesc'; d1.textContent=_d; d1.title=_d; c.appendChild(d1); }
+      const redN=tasks.filter(t=>(t.space||'work')===sp && t.cat===cat.name && t.status==='todo' && !t.archived && urgency(t).level==='red' && !isStaleOverdue(t)).length;
+      const d2=document.createElement('div'); d2.className='pcStats';
+      [['🏡 任務',tN],['📦 追蹤',kN],['📞 聯絡人',pN]].forEach(([l,n])=>{
+        const sN=document.createElement('span'); if (!n) sN.className='zero';
+        sN.appendChild(document.createTextNode(l)); const bN=document.createElement('b'); bN.textContent=n; sN.appendChild(bN);
+        d2.appendChild(sN);
+      });
+      if (redN){ const w=document.createElement('span'); w.className='warn'; w.appendChild(document.createTextNode('🔴 急件')); const bN=document.createElement('b'); bN.textContent=redN; w.appendChild(bN); d2.appendChild(w); }
       c.appendChild(d2);
       c.onclick=()=>{ uiProj.open=cat.name; uiProj.layout=false; renderProjects(); };
       grid.appendChild(c);
@@ -6688,7 +6738,7 @@ function renderProjectDetail(wrap, cat, sp){
   back.onclick=()=>{ uiProj.open=null; uiProj.layout=false; renderProjects(); };
   wrap.appendChild(back);
 
-  const head=document.createElement('div'); head.className='trkCard'; head.style.marginTop='10px';
+  const head=document.createElement('div'); head.className='trkCard projHead'; head.style.marginTop='10px';
   const h=document.createElement('div'); h.className='trkHead';
   const chip=document.createElement('span'); chip.className='chip '+colorClass(cat.name);
   chip.style.cssText='font-size:15px;padding:5px 14px;font-weight:700;';
@@ -6707,14 +6757,16 @@ function renderProjectDetail(wrap, cat, sp){
   head.appendChild(h);
   const desc=document.createElement('textarea'); desc.className='trkNote';
   desc.placeholder='這個專案的說明…（是什麼、關鍵流程、注意事項、重要連結。自動儲存）';
-  desc.style.minHeight='90px';
   desc.value=cat.desc||'';
+  desc.style.maxHeight='60vh';
   desc.onchange=()=>{ cat.desc=desc.value; saveSettings(); };
+  desc.addEventListener('input',()=>autoGrowTa(desc,56));   // v58：說明欄跟著內容長高，沒寫的時候只佔兩行
+  setTimeout(()=>autoGrowTa(desc,56),0);
   head.appendChild(desc);
   wrap.appendChild(head);
 
   const secCard=(title, lines, jumpTarget)=>{
-    const c=document.createElement('div'); c.className='trkCard';
+    const c=document.createElement('div'); c.className='trkCard projBlock';
     const hh=document.createElement('div'); hh.className='trkHead';
     hh.innerHTML='<span class="tTitle">'+title+'</span><span class="spacer"></span>';
     // ＋ 不用跳頁，在專案裡直接新增（自動掛上這個專案）
@@ -6734,16 +6786,18 @@ function renderProjectDetail(wrap, cat, sp){
     c.appendChild(hh);
     if (jumpTarget && uiProj.qa===jumpTarget && QA_LABEL[jumpTarget]) c.appendChild(projQuickAdd(jumpTarget, cat, sp));
     if (!lines.length){
-      const e=document.createElement('div'); e.className='empty'; e.textContent='（目前沒有）';
+      const e=document.createElement('div'); e.className='emptyLine'; e.style.paddingLeft='6px'; e.textContent='目前沒有';
       c.appendChild(e);
     }
+    // v58：每行「左：名稱｜右：狀態」對齊；整行可點、滑過有底色（以前是純文字＋底線）
     lines.forEach(l=>{
-      const d=document.createElement('div');
-      d.style.cssText='font-size:13.5px;margin-top:6px;line-height:1.55;color:'+(l.c||'var(--ink)');
-      d.textContent=l.t;
-      if (l.go){ d.style.cursor='pointer'; d.title='點擊直接前往'; d.onclick=l.go;
-        d.onmouseenter=()=>d.style.textDecoration='underline';
-        d.onmouseleave=()=>d.style.textDecoration=''; }
+      const d=document.createElement('div'); d.className='projLine'+(l.go?' go':'')+(l.more?' more':'');
+      const mn=document.createElement('span'); mn.className='plMain'; mn.textContent=l.t; mn.title=l.t;
+      if (l.c) mn.style.color=l.c;
+      d.appendChild(mn);
+      if (l.m){ const mt=document.createElement('span'); mt.className='plMeta'; mt.textContent=l.m; if (l.mc) mt.style.color=l.mc; d.appendChild(mt); }
+      if (l.go){ d.title='點擊直接前往'; d.onclick=l.go; d.tabIndex=0; d.setAttribute('role','link');
+        d.onkeydown=e=>{ if (e.key==='Enter'){ e.preventDefault(); l.go(); } }; }
       c.appendChild(d);
     });
     return c;
@@ -6756,10 +6810,12 @@ function renderProjectDetail(wrap, cat, sp){
       const tl=[];
       tk.slice(0,6).forEach(t=>{
         const u=urgency(t);
-        tl.push({t:(t.status==='waiting'?'⏳ ':'')+t.title.slice(0,24)+'　'+u.label, c:u.level==='red'?'var(--red)':'var(--ink)',
+        const _st=isStaleOverdue(t);
+        tl.push({t:(t.status==='waiting'?'⏳ ':'')+(t.tags.includes('重要')?'⭐ ':'')+t.title,
+          m:_st?('🕰 擱了 '+(-daysUntil(fromISO(t.due)))+' 天'):u.label, mc:(!_st&&u.level==='red')?'var(--red)':((!_st&&u.level==='orange')?'var(--orange)':''),
           go:()=>{ taskQ=t.title; const tsI=document.getElementById('taskSearch'); if(tsI) tsI.value=t.title; projJump('tasks',cat,sp); }});
       });
-      if (tk.length>6) tl.push({t:'…共 '+tk.length+' 件', c:'var(--sub)'});
+      if (tk.length>6) tl.push({t:'…共 '+tk.length+' 件', more:true});
       return secCard('🏡 進行中任務（'+tk.length+'）', tl, 'tasks');
     },
     track(){
@@ -6769,7 +6825,7 @@ function renderProjectDetail(wrap, cat, sp){
         const act=trk.rows.filter(r=>!r.skipped);
         const done=act.filter(r=>r.done).length;
         const od=act.filter(r=>!r.done&&effDue(trk,r)&&daysUntil(fromISO(effDue(trk,r)))<0).length;
-        kl.push({t:trk.title+'：'+done+'/'+act.length+' 已回'+(od?('｜⏰逾期 '+od):''), c: od?'var(--red)':'var(--ink)',
+        kl.push({t:trk.title, m:done+'/'+act.length+' 已回'+(od?('｜⏰ 逾期 '+od):''), mc: od?'var(--red)':'',
           go:()=>{ uiTrk.collapsed.delete(trk.id); projJump('track',cat,sp);
             setTimeout(()=>{ const el=document.getElementById('trk_'+trk.id);
               if (el){ el.scrollIntoView({behavior:'smooth',block:'start'}); el.style.outline='2px solid var(--accent)';
@@ -6780,9 +6836,9 @@ function renderProjectDetail(wrap, cat, sp){
     phone(){
       const ps=pbook.filter(p=>(p.space||'work')===sp && (p.programs||[]).includes(cat.name));
       const pl=[];
-      ps.slice(0,6).forEach(p=>pl.push({t:p.name+(p.school?'（'+p.school+'）':'')+(p.phone?'　📞 '+p.phone:''),
+      ps.slice(0,6).forEach(p=>pl.push({t:p.name+(p.school?'（'+p.school+'）':''), m:p.phone?('📞 '+p.phone):'',
         go:()=>{ uiPB.q=p.name; projJump('phone',cat,sp); }}));
-      if (ps.length>6) pl.push({t:'…共 '+ps.length+' 位', c:'var(--sub)'});
+      if (ps.length>6) pl.push({t:'…共 '+ps.length+' 位', more:true});
       return secCard('📞 聯絡人（'+ps.length+'）', pl, 'phone');
     },
     notes(){
@@ -6790,13 +6846,13 @@ function renderProjectDetail(wrap, cat, sp){
       const lines=[];
       nl.slice(0,5).forEach(n=>lines.push({t:'・'+n.text.split('\n')[0].slice(0,26),
         go:()=>projJump('notes',cat,sp)}));
-      if (nl.length>5) lines.push({t:'…共 '+nl.length+' 張', c:'var(--sub)'});
+      if (nl.length>5) lines.push({t:'…共 '+nl.length+' 張', more:true});
       return secCard('📒 便利貼（'+nl.length+'）', lines, 'notes');
     },
     sites(){
       const ss=sites.filter(s=>(s.space||'work')===sp && s.cat===cat.name && !s.archived);
       const sl=[];
-      ss.slice(0,6).forEach(s=>sl.push({t:'🔖 '+s.title+(s.note?'　—　'+s.note.slice(0,18):''),
+      ss.slice(0,6).forEach(s=>sl.push({t:'🔖 '+s.title, m:(s.note||'').slice(0,22),
         go:()=>window.open(s.url,'_blank')}));
       if (ss.length>6) sl.push({t:'…共 '+ss.length+' 個', c:'var(--sub)'});
       return secCard('🔖 相關網站（'+ss.length+'）', sl, 'sites');
@@ -6804,9 +6860,9 @@ function renderProjectDetail(wrap, cat, sp){
     manual(){
       const ml=manuals.filter(m=>(m.space||'work')===sp && m.cat===cat.name);
       const lines=[];
-      ml.slice(0,6).forEach(m=>lines.push({t:(m.pinned?'📌 ':'')+'📖 '+m.title+'　更新 '+(m.updated||'—'),
+      ml.slice(0,6).forEach(m=>lines.push({t:(m.pinned?'📌 ':'')+'📖 '+m.title, m:'更新 '+(m.updated||'—'),
         go:()=>{ uiMan.open=m.id; uiMan.q=''; if (inAllView()){ settings.space=sp; saveSettings(); } module='manual'; render(); }}));
-      if (ml.length>6) lines.push({t:'…共 '+ml.length+' 份', c:'var(--sub)'});
+      if (ml.length>6) lines.push({t:'…共 '+ml.length+' 份', more:true});
       return secCard('📖 說明書（'+ml.length+'）', lines, 'manual');
     },
     money(){
@@ -6895,7 +6951,9 @@ function renderProjectDetail(wrap, cat, sp){
     wrap.appendChild(ed);
   }
 
-  blocks.forEach(k=>wrap.appendChild(blockRenderers[k]()));
+  const bGrid=document.createElement('div'); bGrid.className='projBlocks';   // v58：區塊等高雙欄（窄螢幕單欄）
+  blocks.forEach(k=>bGrid.appendChild(blockRenderers[k]()));
+  wrap.appendChild(bGrid);
 }
 
 /* ───────── 📘 使用指南（內建說明書，點標題展開） ───────── */
@@ -7183,12 +7241,12 @@ function renderDiary(){
   hh.appendChild(mtool(cp1)); hh.appendChild(mtool(cp7));
   head.appendChild(hh);
   const note=document.createElement('div'); note.className='setNote mobHide';   // 說明文字手機不顯示（真機回饋：資訊負擔）
-  note.textContent='總月曆看「接下來要做什麼」，日誌看「我做了什麼」。上半是系統自動幫你記的，下半自由寫——每天一分鐘，回顧就有感。';
+  note.textContent='總月曆看「接下來要做什麼」，日誌看「我做了什麼」。左邊自由寫，右邊是系統自動幫你記的——每天一分鐘，回顧就有感。';
   head.appendChild(note);
   // 14 天快速條（有寫的亮圈）——手機收在 📅 裡
   const strip=document.createElement('div');
   mtool(strip);
-  strip.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;';
+  strip.className=(strip.className?strip.className+' ':'')+'diaryStrip';
   for (let i=13;i>=0;i--){
     const dd=addDays(new Date(),-i), ddIso=toISO(dd);
     const has = inAllView()
@@ -7196,7 +7254,7 @@ function renderDiary(){
       : diaryHasContent(diaryEntry(ddIso,settings.space,false));
     const c=document.createElement('span');
     c.className='memberTag'+(ddIso===dIso?' on':'');
-    c.style.cssText='font-size:11.5px;padding:2px 8px;'+(has?'':'opacity:.55;');
+    c.classList.add('dsDay'); if (has) c.classList.add('has');
     c.textContent=(dd.getMonth()+1)+'/'+dd.getDate()+(has?' ●':'');
     c.title=has?'這天有日誌':'這天沒寫';
     c.onclick=()=>{ uiDiary.date=ddIso; renderDiary(); };
@@ -7225,6 +7283,11 @@ function renderDiary(){
     return;
   }
 
+  // v58：主欄（手寫）＋側欄（系統摘要）；窄螢幕自動上下堆疊
+  const dGrid=document.createElement('div'); dGrid.className='diaryGrid';
+  const dMain=document.createElement('div'); dMain.className='diaryMain';
+  const dAside=document.createElement('div'); dAside.className='diaryAside';
+  dGrid.append(dMain, dAside);
   // ── 手寫區（總覽模式唯讀） ──
   if (inAllView()){
     ['work','life'].forEach(sp=>{
@@ -7232,9 +7295,9 @@ function renderDiary(){
       if (!diaryHasContent(e)) return;
       const c=document.createElement('div'); c.className='trkCard';
       c.innerHTML='<div class="trkHead"><span class="tTitle">'+spaceIcon(sp)+' '+(sp==='life'?'私人':'工作')+(e.mood?'　'+e.mood:'')+'</span></div>';
-      if ((e.text||'').trim()){ const b=document.createElement('div'); b.style.cssText='margin-top:8px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;'; renderRich(b,'✍️ '+e.text); c.appendChild(b); }
-      if ((e.learn||'').trim()){ const b=document.createElement('div'); b.style.cssText='margin-top:8px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;'; renderRich(b,'📚 '+e.learn); c.appendChild(b); }
-      wrap.appendChild(c);
+      if ((e.text||'').trim()){ const b=document.createElement('div'); b.className='diaryBody'; renderRich(b,'✍️ '+e.text); c.appendChild(b); }
+      if ((e.learn||'').trim()){ const b=document.createElement('div'); b.className='diaryBody'; renderRich(b,'📚 '+e.learn); c.appendChild(b); }
+      dMain.appendChild(c);
     });
   } else {
     const sp=settings.space;
@@ -7244,7 +7307,15 @@ function renderDiary(){
     const editing = (uiDiary.editFor===dIso) ? uiDiary.editOn : !diaryHasContent(cur0);
     const c=document.createElement('div'); c.className='trkCard';
     const ch=document.createElement('div'); ch.className='trkHead';
-    ch.innerHTML='<span class="tTitle">✍️ 這一天</span><span class="spacer"></span>';
+    ch.innerHTML='<span class="tTitle">✍️ 這一天</span>';
+    if (!editing){   // v58：閱讀模式只顯示「選了哪個心情」，要改再點開；以前 6 顆心情鈕常駐佔一行
+      const mc=document.createElement('button'); mc.className='diaryMoodChip'+((cur0&&cur0.mood)?'':' noMood');   // 別用 .empty——那是全站空狀態（會長出睡覺貓 Zz）
+      mc.textContent=(cur0&&cur0.mood) ? cur0.mood : '＋ 心情';
+      mc.title='點一下選／改今天的心情';
+      mc.onclick=()=>{ uiDiary.moodOpen=!uiDiary.moodOpen; renderDiary(); };
+      ch.appendChild(mc);
+    }
+    { const _sp=document.createElement('span'); _sp.className='spacer'; ch.appendChild(_sp); }
     const tg=document.createElement('button'); tg.className='qbtn';
     tg.textContent= editing ? '✔ 完成' : '✏️ 編輯';
     tg.title= editing ? '完成編輯，回到閱讀畫面' : '編輯這一天的日誌';
@@ -7273,15 +7344,16 @@ function renderDiary(){
       mr.appendChild(b);
     });
     c.appendChild(mr);
+    if (!editing && !uiDiary.moodOpen) mr.style.display='none';
     if (!editing){
       /* 閱讀模式：Markdown 渲染好好呈現（跟總覽唯讀畫面同款） */
       const mkView=(label, val)=>{
         if (!(val||'').trim()) return;
         const lb=document.createElement('div');
-        lb.style.cssText='font-size:13.5px;font-weight:700;margin-top:10px;color:var(--muted);';
+        lb.className='diaryLabel';
         lb.textContent=label;
         const b=document.createElement('div');
-        b.style.cssText='margin-top:4px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;';
+        b.className='diaryBody';
         /* 日誌欄位明文承諾「支援 Markdown」——閱讀模式一律渲染，不受全域 md 開關影響 */
         mdRender(b, val);
         c.appendChild(lb); c.appendChild(b);
@@ -7291,16 +7363,16 @@ function renderDiary(){
       const eh=document.createElement('div'); eh.className='editHint';
       eh.textContent='這是閱讀畫面（Markdown 已排版）｜要修改按右上「✏️ 編輯」';
       c.appendChild(eh);
-      wrap.appendChild(c);
+      dMain.appendChild(c);
     } else {
     // 兩欄：做了什麼＋學到什麼（邊打邊自動存，不重繪、不搶游標）
     const flash=()=>{ stat.style.opacity='1'; clearTimeout(uiDiary.statT); uiDiary.statT=setTimeout(()=>{ stat.style.opacity='0'; },1500); };
     const mkArea=(label, ph, key)=>{
       const lb=document.createElement('div');
-      lb.style.cssText='font-size:13.5px;font-weight:700;margin-top:10px;color:var(--muted);';
+      lb.className='diaryLabel';
       lb.textContent=label;
-      const ta=document.createElement('textarea'); ta.className='trkNote';
-      ta.style.cssText='min-height:72px;margin-top:4px;';
+      const ta=document.createElement('textarea'); ta.className='trkNote diaryTa';
+      ta.style.cssText='margin-top:4px;';
       /* v44：框框高度記憶——拖拉調整後存進設定，換頁回來不再跳回預設 */
       const hs=(settings.diaryH||{})[key];
       if (hs) ta.style.height=hs+'px';
@@ -7333,7 +7405,7 @@ function renderDiary(){
     const eh=document.createElement('div'); eh.className='editHint';
     eh.textContent='↵ Enter 換行｜邊打邊自動儲存（右上會亮 ✓）｜寫完按「✔ 完成」看排版好的樣子';
     c.appendChild(eh);
-    wrap.appendChild(c);
+    dMain.appendChild(c);
     }
   }
 
@@ -7363,23 +7435,25 @@ function renderDiary(){
   }
   const sum=diarySummary(dIso);
   if (!sum.length){
-    const e=document.createElement('div'); e.className='empty';
+    const e=document.createElement('div'); e.className='emptyLine'; e.style.paddingLeft='2px';
     e.textContent= dIso>today ? '這天還沒到喵，先去總月曆排計畫吧' : '這天沒有留下自動紀錄';
     sc.appendChild(e);
   }
   sum.forEach(sec=>{
     const st=document.createElement('div');
-    st.style.cssText='font-size:13.5px;font-weight:700;margin-top:10px;color:var(--muted);';
+    st.className='diaryLabel';
     st.textContent=sec.t;
     sc.appendChild(st);
     sec.lines.forEach(l=>{
       const dl=document.createElement('div');
-      dl.style.cssText='font-size:13.5px;margin-top:4px;line-height:1.55;';
+      dl.className='diaryLine';
       dl.textContent=l;
       sc.appendChild(dl);
     });
   });
-  wrap.appendChild(sc);
+  dAside.appendChild(sc);
+  if (!dMain.children.length) dGrid.classList.add('noAside'), dMain.remove();   // 總覽模式當天沒人寫：摘要獨佔整列
+  wrap.appendChild(dGrid);
 }
 
 /* ───────── 首頁儀表板 ───────── */
