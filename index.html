@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
 <meta name="theme-color" content="#9aab60">
-<script>window.APP_BUILD='v58-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
+<script>window.APP_BUILD='v59-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -602,6 +602,41 @@
   .pbInfo a{color:var(--blue); text-decoration:none;}
   .pbInfo a:hover{text-decoration:underline;}
   .pbNote{font-size:12.5px; color:var(--sub); width:100%; padding-left:2px;}
+
+  /* ── v59 首頁：隨手記一筆＋每張卡一個大數字＋等高三欄 ── */
+  .homeQuick{display:flex; gap:8px; align-items:center; margin-top:12px; cursor:auto;}
+  .homeQuick input{flex:1; min-width:0; font-size:15px; padding:9px 14px; border:1.5px solid var(--line); border-radius:12px; background:var(--cell-bg); color:var(--ink); outline:none;}
+  .homeQuick input:focus{border-color:var(--accent); background:var(--card);}
+  .homeQuickMsg{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; font-size:13.5px; font-weight:700; color:var(--green); background:var(--green-bg); border-radius:10px; padding:5px 12px; cursor:auto;}
+  .homeGrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px; align-items:stretch;}
+  .homeGrid > .homeCard{margin-bottom:0; transition:box-shadow .15s, transform .15s;}
+  .homeGrid > .homeCard:hover{box-shadow:0 4px 12px rgba(120,90,60,.14); transform:translateY(-1px);}
+  .homeBig{margin-left:auto; font-size:22px; font-weight:800; color:var(--ink); line-height:1; letter-spacing:.5px;}
+  .homeBig.zero{color:var(--muted2); font-weight:400;}
+  .homeBig.ok{color:var(--green);}
+  /* ── v59 設定頁：十幾張卡分成四組（外觀／功能與習慣／分類／資料與同步） ── */
+  #settingsPane{columns:auto !important;}
+  .setGroup{margin-bottom:20px;}
+  .setGroupHead{font-size:15px; font-weight:700; color:var(--muted); margin:2px 4px 9px; display:flex; align-items:baseline; gap:8px;}
+  .setGroupHead small{font-size:12.5px; font-weight:400; color:var(--muted2);}
+  .setCards > .trkCard{break-inside:avoid; margin-bottom:10px;}
+  @media (min-width:1100px){ .setCards{columns:2; column-gap:14px;} }
+  /* ── v59 習慣打卡：週點放大到看得清楚、今日進度條 ── */
+  .habWeek{display:flex; gap:8px; margin-top:10px; align-items:center; flex-wrap:wrap;}
+  .habWeek .habDot{width:30px; height:30px; font-size:12.5px;}
+  .habToday{display:flex; align-items:center; gap:10px; margin-top:10px; font-size:12.5px; color:var(--muted2);}
+  .habToday .habBar{flex:1; max-width:320px; height:7px; border-radius:4px; background:var(--gray-bg); overflow:hidden;}
+  .habToday .habBar > i{display:block; height:100%; background:var(--accent); border-radius:4px; transition:width .2s;}
+  .habToday.done{color:var(--green);} .habToday.done .habBar > i{background:var(--green);}
+  /* ── v59 股票持有列：一長串「｜」文字改成有標籤的欄位 ── */
+  .stkStats{display:flex; gap:18px; flex-wrap:wrap; align-items:flex-end;}
+  .stkStats > span{display:inline-flex; flex-direction:column; gap:1px; font-size:13.5px; color:var(--ink); white-space:nowrap;}
+  .stkStats > span > small{font-size:12px; color:var(--muted2);}
+  .stkStats > span.key{font-weight:700;}
+  /* ── v59 封存頁 ── */
+  .arcRow{padding:8px 6px; border-radius:8px;}
+  .arcRow:hover{background:var(--cell-bg);}
+  @media (hover:hover){ .arcRow .qbtn{opacity:.35; transition:opacity .12s;} .arcRow:hover .qbtn, .arcRow:focus-within .qbtn{opacity:1;} }
 
   /* ── v58 日誌：左邊寫、右邊系統摘要（寬螢幕雙欄）；內文比照長文規格 ── */
   .diaryGrid{display:grid; grid-template-columns:minmax(0,1fr); gap:0 14px; align-items:start;}
@@ -7457,6 +7492,7 @@ function renderDiary(){
 }
 
 /* ───────── 首頁儀表板 ───────── */
+let homeQuickMsg=null;   // v59：首頁隨手記的成功訊息（顯示幾秒）
 function renderHome(){
   const wrap=document.getElementById('homePane');
   wrap.innerHTML='';
@@ -7525,6 +7561,33 @@ function renderHome(){
     add('🕰 有 '+fireStale.length+' 件擱了比較久（最久 '+_old+' 天）——點這裡去重排：改期限、改成無期限或封存都可以','var(--muted2)');
   }
   chase.slice(0,5).forEach(t=>add('⏰ 該催了：'+t.title.slice(0,26),'var(--orange)'));
+  // v59：首頁直接「隨手記一件事」——不用先切到任務小窩；走跟任務小窩同一條 addTask 流程（中文期限照樣解析）
+  if (!inAllView()){
+    const qa=document.createElement('div'); qa.className='homeQuick'; qa.onclick=e=>e.stopPropagation();
+    const qi=document.createElement('input'); qi.id='homeQuickIn'; qi.type='text'; qi.autocomplete='off';
+    qi.placeholder='＋ 隨手記一件事，按 Enter 加入（例：下週三前回覆報名信）';
+    qi.setAttribute('aria-label','隨手記一件事，按 Enter 加入任務小窩');
+    const qb=document.createElement('button'); qb.className='btnAdd'; qb.textContent='加入'; qb.style.whiteSpace='nowrap';
+    const go=()=>{
+      const v=qi.value.trim(); if (!v) return;
+      const ti=document.getElementById('input'), tb=document.getElementById('inputBody');
+      const keepT=ti.value, keepB=tb.value;          // 任務小窩打到一半的草稿不能被吃掉
+      ti.value=v; tb.value=''; draft=null;
+      addTask();
+      ti.value=keepT; tb.value=keepB;
+      homeQuickMsg={t:'✅ 已加入任務小窩：'+tasks[0].title.slice(0,24)+(tasks[0].due?'（期限 '+fmtDate(fromISO(tasks[0].due))+'）':''), at:Date.now()};
+      renderHome();
+      setTimeout(()=>{ const n=document.getElementById('homeQuickIn'); if (n) n.focus(); },30);
+    };
+    qi.onkeydown=e=>{ if (e.key==='Enter' && !e.isComposing && e.keyCode!==229){ e.preventDefault(); go(); } };
+    qb.onclick=go;
+    qa.append(qi,qb); hero.appendChild(qa);
+    if (homeQuickMsg && Date.now()-homeQuickMsg.at<9000){
+      const ms=document.createElement('div'); ms.className='homeQuickMsg'; ms.onclick=e=>e.stopPropagation();
+      ms.appendChild(document.createTextNode(homeQuickMsg.t));
+      hero.appendChild(ms);
+    }
+  }
   hero.onclick=()=>{ module='tasks'; view='list'; render(); };
   wrap.appendChild(hero);
 
@@ -7555,13 +7618,18 @@ function renderHome(){
   })();
 
   // 模組小卡
-  const grid=document.createElement('div');
-  grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;align-items:start;';
-  const mkCard=(title,lines,target)=>{
+  const grid=document.createElement('div'); grid.className='homeGrid';
+  const mkCard=(title,lines,target,big,bigCls)=>{
     const c=document.createElement('div'); c.className='trkCard homeCard';
     c.style.cssText+='cursor:pointer;margin-bottom:0;';
     c.title='點擊前往';
+    c.tabIndex=0; c.setAttribute('role','link');
+    c.onkeydown=e=>{ if (e.key==='Enter'){ e.preventDefault(); c.click(); } };
     c.innerHTML='<div class="trkHead"><span class="tTitle">'+title+'</span></div>';
+    if (big!==undefined && big!==null && big!==''){   // v59：每張卡右上一個大數字，一眼掃完
+      const bg=document.createElement('span'); bg.className='homeBig'+((big===0||big==='0')?' zero':'')+(bigCls?' '+bigCls:'');
+      bg.textContent=big; c.querySelector('.trkHead').appendChild(bg);
+    }
     lines.forEach(l=>{
       const d=document.createElement('div');
       // 單行截斷＋title 看全文：卡片行行整齊、不再因長名單換好幾行而參差
@@ -7583,9 +7651,10 @@ function renderHome(){
     if (todo.length>4) l1.push({t:'…還有 '+(todo.length-4)+' 件待辦',c:'var(--sub)'});
     wait.slice(0,2).forEach(t=>l1.push({t:'⏳ 等回覆：'+t.title.slice(0,16),c:'var(--sub)'}));
   } else {
-    l1.push(fire.length?{t:'🔴 急件 '+fire.length+' 件',c:'var(--red)'}:{t:'無急件',c:'var(--sub)'});
+    l1.push(fireFresh.length?{t:'🔴 急件 '+fireFresh.length+' 件',c:'var(--red)'}
+          : fireStale.length?{t:'🕰 擱著 '+fireStale.length+' 件（不急，找時間重排）',c:'var(--muted2)'}:{t:'無急件',c:'var(--sub)'});
   }
-  grid.appendChild(mkCard('🏡 任務小窩', l1,'tasks'));
+  grid.appendChild(mkCard('🏡 任務小窩', l1,'tasks', todo.length));
   // ⭐ 重要任務預覽：有標 ⭐ 的待辦才出現這張卡
   const impList=todo.filter(t=>t.tags&&t.tags.includes('重要'));
   if (impList.length){
@@ -7600,7 +7669,7 @@ function renderHome(){
         });
       if (impList.length>5) li.push({t:'…還有 '+(impList.length-5)+' 件重要任務',c:'var(--sub)'});
     }
-    grid.appendChild(mkCard('⭐ 重要', li,'tasks'));
+    grid.appendChild(mkCard('⭐ 重要', li,'tasks', impList.length));
   }
   if (settings.modules.track!==false){
     const vt=trackers.filter(t=>spaceMatch(t.space) && !t.archived);
@@ -7616,7 +7685,7 @@ function renderHome(){
       }
     });
     if (!vt.length) l2.push({t:'沒有進行中的追蹤',c:'var(--sub)'});
-    grid.appendChild(mkCard('📦 追蹤項目', l2,'track'));
+    grid.appendChild(mkCard('📦 追蹤項目', l2,'track', vt.length ? vt.reduce((n,trk)=>n+trk.rows.filter(r=>!r.skipped&&!r.done).length,0)+' 待回' : ''));
   }
   if (settings.modules.money!==false){
     const vm=money.filter(m=>spaceMatch(m.space));
@@ -7628,7 +7697,7 @@ function renderHome(){
       pend.slice(0,3).forEach(m=>l3.push({t:'・'+(m.desc||'').slice(0,12)+'　'+fmtMoney((m.amount||0)*(m.qty||1))}));
       if (pend.length>3) l3.push({t:'…還有 '+(pend.length-3)+' 筆',c:'var(--sub)'});
     }
-    grid.appendChild(mkCard('💰 記帳', l3,'money'));
+    grid.appendChild(mkCard('💰 記帳', l3,'money', pend.length?pend.length+' 筆':''));
   }
   if (settings.modules.habits!==false){
     const vh=habits.filter(h=>spaceMatch(h.space)&&!h.archived);
@@ -7644,7 +7713,7 @@ function renderHome(){
         undone.slice(0,3).forEach(h=>lh.push({t:'・還沒打卡：'+(h.icon||'🌱')+' '+h.name.slice(0,12), c:'var(--orange)'}));
         if (undone.length>3) lh.push({t:'…還有 '+(undone.length-3)+' 個', c:'var(--sub)'});
       }
-      grid.appendChild(mkCard('🌱 習慣打卡', lh,'habits'));
+      grid.appendChild(mkCard('🌱 習慣打卡', lh,'habits', (sched.length-undone.length)+'/'+sched.length, (sched.length&&!undone.length)?'ok':''));
     }
   }
   if (settings.modules.notes!==false){
@@ -7655,7 +7724,7 @@ function renderHome(){
       if (vn.length>5) l4.push({t:'…還有 '+(vn.length-5)+' 張',c:'var(--sub)'});
     }
     if (!vn.length) l4.push({t:'沒有便利貼',c:'var(--sub)'});
-    grid.appendChild(mkCard('📒 便利貼（'+vn.length+'）', l4,'notes'));
+    grid.appendChild(mkCard('📒 便利貼', l4,'notes', vn.length));
   }
   if (settings.modules.diary!==false && !inAllView()){
     const tIso=toISO(new Date());
@@ -7668,7 +7737,7 @@ function renderHome(){
     }
     const doneN=tasks.filter(t=>spaceMatch(t.space)&&t.doneAt===tIso).length;
     if (doneN) ld.push({t:'今天已完成 '+doneN+' 件，系統都幫你記好了',c:'var(--sub)'});
-    grid.appendChild(mkCard('📓 今日日誌', ld,'diary'));
+    grid.appendChild(mkCard('📓 今日日誌', ld,'diary', diaryHasContent(e)?'✓':'', 'ok'));
   }
   wrap.appendChild(grid);
   const hint=document.createElement('div'); hint.className='calLegend';
@@ -8302,7 +8371,7 @@ function renderHabits(){
     }
     // 本週七顆點點（排程感知）
     const wk=document.createElement('div');
-    wk.style.cssText='display:flex;gap:7px;margin-top:9px;align-items:center;';
+    wk.className='habWeek';
     for (let i=0;i<7;i++){
       const dd=addDays(monday,i);
       const iso=toISO(dd);
@@ -8318,6 +8387,16 @@ function renderHabits(){
       wk.appendChild(dEl);
     }
     card.appendChild(wk);
+    // v59：今天的進度條（一天要打多次的習慣才需要——0/6 光看按鈕上的字不夠直覺）
+    if (daily>1 && habitScheduledOn(h, fromISO(todayISO))){
+      const cntT=Math.min(h.log[todayISO]||0, daily);
+      const tdy=document.createElement('div'); tdy.className='habToday'+(cntT>=daily?' done':'');
+      const lb=document.createElement('span'); lb.textContent='今天 '+cntT+'/'+daily;
+      const bar=document.createElement('span'); bar.className='habBar';
+      const fi=document.createElement('i'); fi.style.width=Math.round(cntT/daily*100)+'%'; bar.appendChild(fi);
+      const tail=document.createElement('span'); tail.textContent= cntT>=daily ? '達成 🎉' : '還差 '+(daily-cntT)+' 次';
+      tdy.append(lb,bar,tail); card.appendChild(tdy);
+    }
     // 展開：本月格子（點擊循環 0→1→…→達成→0，可補打卡）
     if (uiHab.expand.has(h.id)){
       const mg=document.createElement('div');
@@ -8454,7 +8533,7 @@ function renderArchive(){
 
     if (!collapsed){
       const mkRow=(icon, title, sub, restoreFn, delKey, delFn)=>{
-        const row=document.createElement('div'); row.className='pbRow';
+        const row=document.createElement('div'); row.className='pbRow arcRow';
         const tl=document.createElement('span'); tl.className='pbName'; tl.textContent=icon+' '+title;
         row.appendChild(tl);
         if (sub){ const s=document.createElement('span'); s.className='pbInfo'; s.textContent=sub; row.appendChild(s); }
@@ -9736,9 +9815,14 @@ function renderStocks(){
     const tt=document.createElement('span'); tt.style.cssText='font-weight:700;font-size:13.5px;';
     tt.textContent='📈 '+r.code+(r.name?' '+r.name:'');
     row.appendChild(tt);
-    const info=document.createElement('span'); info.style.cssText='font-size:12.5px;color:var(--sub);';
-    info.textContent=r.qty+' '+r.unit+'｜'+fmtDate(fromISO(r.buyDate))+' 買 '+r.buyPrice+'｜總成本 '+stkFmt(cost)+'（已含買進手續費）｜兩平價 ≈'+be
-      +(stk.brokers.length>1?('｜🏦 '+stkBroker(r).name):'');
+    const info=document.createElement('span'); info.className='stkStats';
+    const mkS=(label,val,key,tip)=>{ const sN=document.createElement('span'); if (key) sN.className='key'; if (tip) sN.title=tip;
+      const sm=document.createElement('small'); sm.textContent=label; sN.appendChild(sm); sN.appendChild(document.createTextNode(val)); info.appendChild(sN); };
+    mkS('持有', r.qty+' '+r.unit);
+    mkS(fmtDate(fromISO(r.buyDate))+' 買進', String(r.buyPrice));
+    mkS('總成本', stkFmt(cost), false, '已含買進手續費');
+    mkS('兩平價', '≈ '+be, true, '賣到這個價剛好不賺不賠（已算買賣手續費＋證交稅）');
+    if (stk.brokers.length>1) mkS('券商', stkBroker(r).name);
     row.appendChild(info);
     // 🎯 目標：想賺多少 → 建議賣價
     const tg=document.createElement('span'); tg.style.cssText='font-size:12.5px;display:inline-flex;gap:4px;align-items:center;';
@@ -10511,6 +10595,39 @@ renderSettings=function(){
       if (i>-1) settings.setOpen.splice(i,1); else settings.setOpen.push(title);
       saveSettings(); renderSettings();
     });
+  });
+};
+
+const _rsForGroup=renderSettings;
+renderSettings=function(){
+  _rsForGroup();
+  const wrap=document.getElementById('settingsPane');
+  const GROUPS=[
+    ['🎨 外觀','長相與文字',['佈景主題','文字顯示','期間任務圖示']],
+    ['🧩 功能與習慣','要用哪些功能、預設怎麼運作',['功能開關','角色範本','預設行為','提醒節奏','例行規則']],
+    ['📂 分類','工作與私人空間各自的專案類別',['工作空間的類別','私人空間的類別']],
+    ['🛡 資料與同步','快照、雲端同步',['自動快照','雲端同步']],
+  ];
+  const cards=[...wrap.children];
+  const titleOf=c=>{ const t=c.querySelector(':scope > .trkHead .tTitle'); return t?t.textContent:''; };
+  const used=new Set(); const secs=[];
+  GROUPS.forEach(([name,sub,keys])=>{
+    const mine=[];
+    keys.forEach(k=>cards.forEach(c=>{ if (!used.has(c) && titleOf(c).includes(k)){ mine.push(c); used.add(c); } }));
+    secs.push({name,sub,mine});
+  });
+  // 沒標題的說明卡（空間切換／類別隱藏的解說）歸到「分類」；其餘沒對到的放「其他」
+  const rest=cards.filter(c=>!used.has(c));
+  rest.filter(c=>!titleOf(c)).forEach(c=>{ secs[2].mine.push(c); used.add(c); });
+  const other=rest.filter(c=>!used.has(c));
+  if (other.length) secs.push({name:'⚙️ 其他',sub:'',mine:other});
+  secs.filter(g=>g.mine.length).forEach(g=>{
+    const sec=document.createElement('section'); sec.className='setGroup';
+    const hd=document.createElement('div'); hd.className='setGroupHead'; hd.textContent=g.name;
+    if (g.sub){ const sm=document.createElement('small'); sm.textContent=g.sub; hd.appendChild(sm); }
+    const box=document.createElement('div'); box.className='setCards';
+    g.mine.forEach(c=>box.appendChild(c));
+    sec.append(hd,box); wrap.appendChild(sec);
   });
 };
 
