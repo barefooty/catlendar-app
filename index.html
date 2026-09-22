@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
 <meta name="theme-color" content="#9aab60">
-<script>window.APP_BUILD='v62-2026-09-22';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
+<script>window.APP_BUILD='v62.1-2026-09-22';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -5011,6 +5011,7 @@ function caseCfg(){
   return c;
 }
 function caseRole(id){ return caseCfg().roles.find(r=>r.id===id)||null; }
+function ballLbl(name){ return '輪到'+name; }   // v62.1：她看不懂「等我」——「輪到我／輪到窗口」＝下一步該誰動手
 function caseRoleCls(id){ const r=caseRole(id); return r ? 'rc-'+(CASE_COLORS.includes(r.color)?r.color:'accent') : 'rc-none'; }
 function loadCases(){
   try{ cases=JSON.parse(localStorage.getItem(CASES_KEY))||[]; }catch(e){ cases=[]; }
@@ -5224,7 +5225,12 @@ function caseExport(){
 function renderCaseBoard(wrap){
   const cfg=caseCfg();
   const ro=inAllView();
-  const all=visCases();
+  // v62.1 📂 專案分類切換：看板一次只看一個專案（學校的跟比賽的不會混在一起）；選了會記住
+  const allRaw=visCases();
+  const catsInUse=[...new Set(allRaw.map(c=>c.cat||'其他'))];
+  if (uiCase.cat===undefined) uiCase.cat=(settings.ui&&settings.ui.caseCat)||null;
+  if (uiCase.cat && !catsInUse.includes(uiCase.cat)) uiCase.cat=null;
+  const all=uiCase.cat ? allRaw.filter(c=>(c.cat||'其他')===uiCase.cat) : allRaw;
   const openCases=all.filter(c=>!c.closed);
 
   // 標題列
@@ -5305,7 +5311,7 @@ function renderCaseBoard(wrap){
       const cs=document.createElement('select'); cs.className='miniSelect';
       [['accent','主題色'],['orange','橘'],['red','紅'],['green','綠']].forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; if(r.color===v) o.selected=true; cs.appendChild(o); });
       cs.onchange=()=>{ r.color=cs.value; saveSettings(); renderTracker(); };
-      const pre=document.createElement('span'); pre.className='cbBall '+caseRoleCls(r.id); pre.style.marginLeft='0'; pre.style.cursor='default'; pre.textContent='等'+r.name;
+      const pre=document.createElement('span'); pre.className='cbBall '+caseRoleCls(r.id); pre.style.marginLeft='0'; pre.style.cursor='default'; pre.textContent=ballLbl(r.name);
       row.append(ni,cs,pre);
       if (cfg.roles.length>1){
         const del=document.createElement('button'); del.className='qbtn subtleBtn'; del.innerHTML=riIcon('trash'); del.title='移除這個角色（案子上原本指到它的會變成「暫無待辦」）';
@@ -5397,6 +5403,16 @@ function renderCaseBoard(wrap){
     setTimeout(()=>ni.focus(),0);
   }
 
+  if (allRaw.length && (catsInUse.length>1 || uiCase.cat)){
+    const cr=document.createElement('div'); cr.className='cbFilters'; cr.style.marginBottom='8px';
+    cr.appendChild(mkLbl('📂 專案：'));
+    [[null,'全部（'+allRaw.filter(c=>!c.closed).length+'）'],...catsInUse.map(k=>[k,k+'（'+allRaw.filter(c=>(c.cat||'其他')===k&&!c.closed).length+'）'])].forEach(([k,l])=>{
+      const b=document.createElement('span'); b.className='memberTag'+(uiCase.cat===k?' on ':' ')+(k?colorClass(k):''); b.textContent=l;
+      b.onclick=()=>{ uiCase.cat=k; settings.ui=settings.ui||{}; settings.ui.caseCat=k; saveSettings(); renderTracker(); };
+      cr.appendChild(b);
+    });
+    wrap.appendChild(cr);
+  }
   if (!all.length){
     if (!uiCase.newCase){
       const e=document.createElement('div'); e.className='empty';
@@ -5418,7 +5434,7 @@ function renderCaseBoard(wrap){
     k.onclick=act; k.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); act(); } };
     kp.appendChild(k); };
   mkK(openCases.length,'進行中的案子','all');
-  cfg.roles.forEach(r=>mkK(cnt(r.id),'等'+r.name,r.id,{accent:'var(--accent)',orange:'var(--orange)',red:'var(--red)',green:'var(--green)'}[r.color]||'var(--accent)'));
+  cfg.roles.forEach(r=>mkK(cnt(r.id),ballLbl(r.name),r.id,{accent:'var(--accent)',orange:'var(--orange)',red:'var(--red)',green:'var(--green)'}[r.color]||'var(--accent)'));
   mkK(noneCnt,'暫無待辦','none','var(--muted2)');
   mkK(batchCnt,'有批次進行中','batch');
   const lateCnt=openCases.filter(caseHasLate).length;
@@ -5432,14 +5448,15 @@ function renderCaseBoard(wrap){
     parts.forEach(p=>{ if(!p.n) return; const i=document.createElement('i'); i.className=p.cls; i.style.width=(p.n/openCases.length*100)+'%'; i.textContent=p.n; stack.appendChild(i); });
     wrap.appendChild(stack);
     const lg=document.createElement('div'); lg.className='cbLegend';
-    cfg.roles.forEach(r=>{ const s=document.createElement('span'); s.innerHTML='<b class="'+caseRoleCls(r.id)+'"></b>等'+esc(r.name); lg.appendChild(s); });
+    cfg.roles.forEach(r=>{ const s=document.createElement('span'); s.innerHTML='<b class="'+caseRoleCls(r.id)+'"></b>'+esc(ballLbl(r.name)); lg.appendChild(s); });
     const s0=document.createElement('span'); s0.innerHTML='<b class="rc-none" style="background:var(--muted2)"></b>暫無待辦'; lg.appendChild(s0);
+    const s1=document.createElement('span'); s1.style.cssText='color:var(--muted2);'; s1.textContent='「輪到誰」＝這個案子下一步該由誰動手；輪到'+esc(cfg.roles[0].name)+'＝我要做事、其他＝在等別人'; lg.appendChild(s1);
     wrap.appendChild(lg);
   }
 
   // 篩選 ＋ 搜尋
   const fr=document.createElement('div'); fr.className='cbFilters';
-  [['all','全部'],...cfg.roles.map(r=>[r.id,'等'+r.name]),['none','暫無待辦'],['batch','批次進行中'],['late','預計已過還沒到'],['stale',cfg.staleDays+' 天沒更新'],['closed','已結案']].forEach(([k,l])=>{
+  [['all','全部'],...cfg.roles.map(r=>[r.id,ballLbl(r.name)]),['none','暫無待辦'],['batch','批次進行中'],['late','預計已過還沒到'],['stale',cfg.staleDays+' 天沒更新'],['closed','已結案']].forEach(([k,l])=>{
     if (k==='closed' && !all.some(c=>c.closed)) return;
     const b=document.createElement('span'); b.className='memberTag'+(uiCase.filter===k?' on':''); b.textContent=l;
     b.onclick=()=>{ uiCase.filter=k; renderTracker(); }; fr.appendChild(b);
@@ -5487,8 +5504,8 @@ function caseCard(c, cfg, ro){
   if (c.cat){ const ck=document.createElement('span'); ck.className='chip '+colorClass(c.cat); ck.textContent='📂 '+c.cat; hd.appendChild(ck); }
   const ball=document.createElement('span'); ball.className='cbBall '+ballCls;
   const r=caseRole(c.ball);
-  ball.textContent= c.closed ? '已結案' : (r ? '等'+r.name : '暫無待辦');
-  ball.title='球在誰：點一下換角色';
+  ball.textContent= c.closed ? '已結案' : (r ? ballLbl(r.name) : '暫無待辦');
+  ball.title='輪到誰＝這個案子下一步該誰動手。點一下換人';
   if (!ro && !c.closed){
     ball.setAttribute('role','button'); ball.tabIndex=0;
     const act=()=>{ uiCase.ballPick = uiCase.ballPick===c.id ? null : c.id; renderTracker(); };
@@ -5498,8 +5515,8 @@ function caseCard(c, cfg, ro){
   card.appendChild(hd);
   if (uiCase.ballPick===c.id && !ro){
     const row=document.createElement('div'); row.className='pickerRow'; row.style.marginTop='0';
-    row.appendChild(mkLbl('球在誰：'));
-    [...cfg.roles.map(r2=>[r2.id,'等'+r2.name]),['','暫無待辦']].forEach(([id,l])=>{
+    row.appendChild(mkLbl('下一步輪到誰：'));
+    [...cfg.roles.map(r2=>[r2.id,ballLbl(r2.name)]),['','暫無待辦']].forEach(([id,l])=>{
       const b=document.createElement('span'); b.className='memberTag'+((c.ball||'')===id?' on':''); b.textContent=l;
       b.onclick=()=>{ c.ball=id; uiCase.ballPick=null; caseTouch(c,null); renderTracker(); };
       row.appendChild(b);
@@ -7914,7 +7931,9 @@ const GUIDE_SECTIONS=[
   +'<b>七個詞（程式只認這些，名字都可以自己取）：</b><br>'
   +'・<b>案子</b>＝對象（一張卡）　・<b>軌</b>＝範本（這類案子有哪幾條線）　・<b>線</b>＝平行的事（例：進度線、經費線）　・<b>階段</b>＝線上的順序格子<br>'
   +'・<b>批次</b>＝同一條線會重複發生的事（第 2 批、加選 #3），照那條線的階段再跑一輪，做完自動收進歷史<br>'
-  +'・<b>球在誰</b>＝現在卡在誰手上（角色最多 6 個、顏色四選）——這是看板的第一資訊，KPI 與顏色都繞著它<br>'
+  +'・<b>輪到誰</b>＝這個案子下一步該由誰動手（「輪到我」＝我要做事；「輪到對方／第三方」＝在等別人）——這是看板的第一資訊，KPI 與顏色都繞著它；角色最多 6 個、顏色四選<br>'
+  +'・<b>📂 專案</b>＝看板上方可切換只看一個專案（學校的、比賽的、廠商的不會混在一起），選了會記住<br>'
+  +'<b>不想學操作？</b>把看板當<b>唯讀</b>看就好：進度跟 AI 講，AI 產更新檔、你按 📥 匯入；每次匯入前自動拍快照，改壞了到 ⚙️ 設定 → 🕒 自動快照 一鍵還原。<br>'
   +'・<b>更新日</b>＝任何改動自動記；超過 N 天沒動的卡片變淡、可篩選<br><br>'
   +'<b>怎麼用：</b>點線上的格子＝那格完成（再點最後一格已完成的＝退回）；點右上角膠囊換「球在誰」；「下一步」與「誰／CC 誰」直接在卡片上打字；點案子名稱展開歷史（階段變動自動記）、加批次、加線、備註、結案。<br>'
   +'<b>📅 日期對（v62）：</b>每條線／批次狀態旁有一顆日期膠囊，點開設<b>預計</b>（對方說幾號會發生）、<b>實際</b>（真的發生那天；第一格打勾時自動填）、<b>原話</b>（照抄對方怎麼說的，日後不用再問）。語意固定＝<b>這條線第一格</b>的預計／實際發生日。預計填了就不改、實際另一格，顯示「實 9/10（預 9/8，+2 天）」；預計已過還沒發生會變紅並可用 KPI「預計已過還沒到」篩出來。<br>'
@@ -7958,11 +7977,15 @@ const GUIDE_SECTIONS=[
  {id:'keys', t:'⌨️ 快捷鍵', h:
   '<b>1-9</b>：切換導覽（照左邊列表順序）｜<b>n</b>：跳到新增任務輸入框｜<b>/</b>：搜尋任務｜<b>x</b>：快速完成第一件急事。<br>'
   +'打字時快捷鍵自動失效，不會誤觸。⚙️ 設定可整組關閉。'},
- {id:'data', t:'💾 備份與資料安全', h:
+ {id:'data', isNew:true, t:'💾 備份與資料安全（含雲端同步換通行碼）', h:
   '資料全部存在<b>這台電腦的瀏覽器</b>（localStorage），不上傳、不需要帳號。也因此：<br><br>'
   +'1️⃣ <b>請定期按最下面的「📤 匯出備份」</b>——存成 JSON 檔就萬無一失，換電腦也是靠它搬家。<br>'
   +'2️⃣ 每天第一次開啟會自動留 🕒 快照（最多 5 份），手滑刪錯東西可以在 ⚙️ 設定還原。<br>'
-  +'3️⃣ 要把工具分享給同事：直接把 HTML 檔傳給對方就好，<b>檔案本身不含你的任何資料</b>。'},
+  +'3️⃣ 要把工具分享給同事：直接把 HTML 檔傳給對方就好，<b>檔案本身不含你的任何資料</b>。<br><br>'
+  +'<b>☁️ 雲端同步：換通行碼的正確順序（很多人在第②步弄錯）</b><br>'
+  +'① GAS 第一行 <code>TOKEN</code> 改成新密語 → 💾　② <b>部署 → 管理部署 → ✎ → 版本「新版本」→ 部署</b>（網址不變；漏了這步會一直「通行碼不對」）　'
+  +'③ ⚙️ 設定 → ☁️ 雲端同步 改通行碼 → 🔌 測試 ✅ → ⬆　④ 手機用「📱 複製安裝連結」帶過去。<br>'
+  +'❌ 按成「新增部署」了？會多一條新網址，資料不會分岔——把新網址貼到桌機與手機的「同步網址」即可，想乾淨再回管理部署把舊的封存。'},
 ];
 function renderGuide(){
   const wrap=document.getElementById('guidePane');
@@ -8578,11 +8601,11 @@ function renderHome(){
       const cfg=caseCfg(); const l4=[];
       const first=cfg.roles[0];
       const mine=first?vc.filter(c=>c.ball===first.id):[];
-      cfg.roles.forEach(r=>{ const n=vc.filter(c=>c.ball===r.id).length; if (n) l4.push({t:'等'+r.name+' '+n+' 個', c:{accent:'var(--accent)',orange:'var(--orange)',red:'var(--red)',green:'var(--green)'}[r.color]||'var(--ink)'}); });
+      cfg.roles.forEach(r=>{ const n=vc.filter(c=>c.ball===r.id).length; if (n) l4.push({t:ballLbl(r.name)+' '+n+' 個', c:{accent:'var(--accent)',orange:'var(--orange)',red:'var(--red)',green:'var(--green)'}[r.color]||'var(--ink)'}); });
       const st=vc.filter(caseIsStale).length; if (st) l4.push({t:'🕰 '+st+' 個超過 '+cfg.staleDays+' 天沒更新', c:'var(--sub)'});
       if (!l4.length) l4.push({t:'都沒有待辦，太棒了', c:'var(--sub)'});
       if (det) mine.slice(0,3).forEach(c=>l4.push({t:'・'+c.name.slice(0,10)+(c.next?'：'+c.next.slice(0,16):''), c:'var(--sub)'}));
-      const mc=mkCard('🧭 追案看板', l4,'track', first ? mine.length+' 等'+first.name : vc.length+' 個');
+      const mc=mkCard('🧭 追案看板', l4,'track', first ? mine.length+' '+ballLbl(first.name) : vc.length+' 個');
       mc.addEventListener('click',()=>{ uiTrk.tab='cases'; },true);
       grid.appendChild(mc);
     }
@@ -11409,8 +11432,9 @@ function buildSyncWizard(){
     +'複製結尾是 <code>/exec</code> 的網址，貼到下面「同步網址」欄＋填通行碼 → 按「🔌 測試連線」看到 ✅ 就完成！');
   const warn=document.createElement('div');
   warn.style.cssText='margin-top:12px;font-size:12.5px;color:var(--orange);line-height:1.7;';
-  warn.innerHTML='⚠️ 之後如果回去改 GAS 程式：要用「部署 → <b>管理部署</b> → ✎ → 新版本」更新，'
-    +'<b>不要按「新增部署」</b>——那會產生一條新網址，舊網址就失效了。';
+  warn.innerHTML='🔑 <b>之後要換通行碼（或改程式）</b>：① GAS 第一行 TOKEN 改好 💾 → ② 部署 → <b>管理部署</b> → ✎ → 版本「<b>新版本</b>」→ 部署（網址不變；跳過這步會一直「通行碼不對」）'
+    +'→ ③ 這裡的通行碼欄改成新的 → 🔌 測試 ✅ → ⬆ → ④ 手機用「📱 複製安裝連結」帶過去。<br>'
+    +'❌ <b>不小心按成「新增部署」</b>：會多一條新網址、資料不會分岔——把新網址貼進桌機與手機的「同步網址」就好（想乾淨再回管理部署把舊的封存）。';
   w.append(s1,s2,s3,warn);
   return w;
 }
