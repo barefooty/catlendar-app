@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
 <meta name="theme-color" content="#9aab60">
-<script>window.APP_BUILD='v60-2026-09-21';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
+<script>window.APP_BUILD='v61-2026-09-22';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -1004,6 +1004,75 @@
       z-index:89; border:none; transition:transform .12s;}
     #mobAddBtn:active{transform:scale(.92);}
   }
+  /* ───── 🧭 追案看板（v61）：一個案子 × 多條線 × 多階段 × 球在誰 ───── */
+  .cbTop{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:4px 2px 10px;}
+  .cbTop .tTitle{font-weight:700; font-size:16px;}
+  .cbKpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:8px; margin:0 0 10px;}
+  .cbKpi{background:var(--card); border:1.5px solid var(--line); border-radius:14px; padding:9px 12px; cursor:pointer; transition:border-color .15s; user-select:none;}
+  .cbKpi:hover, .cbKpi.on{border-color:var(--accent);}
+  .cbKpi .n{font-size:24px; font-weight:700; line-height:1.1; font-variant-numeric:tabular-nums;}
+  .cbKpi .l{font-size:12.5px; color:var(--sub); margin-top:2px;}
+  .cbStack{display:flex; height:20px; border-radius:8px; overflow:hidden; border:1.5px solid var(--line); margin:0 0 5px; background:var(--gray-bg);}
+  .cbStack i{font-style:normal; font-size:12px; line-height:20px; text-align:center; white-space:nowrap; overflow:hidden;}
+  .cbLegend{display:flex; gap:12px; flex-wrap:wrap; font-size:12.5px; color:var(--sub); margin-bottom:10px;}
+  .cbLegend b{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:middle;}
+  .cbFilters{display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin:0 2px 10px;}
+  .cbFilters .cbCount{margin-left:auto; font-size:12.5px; color:var(--muted2);}
+  .cbGrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; align-items:stretch;}
+  .trkCard.cbCard{display:flex; flex-direction:column; gap:7px; margin-bottom:0;}
+  .cbCard.isStale{opacity:.72;}
+  .cbCard.isStale:hover, .cbCard.isStale:focus-within{opacity:1;}
+  .cbCard.isClosed{opacity:.6;}
+  .cbHead{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .cbName{font-weight:700; font-size:16px; cursor:pointer;}
+  .cbName:hover{color:var(--accent);}
+  .cbBall{margin-left:auto; font-size:12.5px; font-weight:600; padding:2px 10px; border-radius:999px; white-space:nowrap; cursor:pointer; border:1.5px solid transparent; user-select:none;}
+  .cbBall.rc-none{background:var(--gray-bg); color:var(--muted2); font-weight:500;}
+  .rc-accent{background:var(--accent); color:var(--on-accent,#fff);}
+  .rc-orange{background:var(--orange); color:var(--on-accent,#fff);}
+  .rc-red{background:var(--red); color:var(--on-red,#fff);}
+  .rc-green{background:var(--green); color:var(--on-green,#fff);}
+  .cbLane{display:grid; grid-template-columns:60px 1fr; gap:8px; align-items:center; font-size:12.5px;}
+  .cbLane .ln{color:var(--muted2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .cbLane .ln.isBatch{color:var(--sub);}
+  .cbSteps{display:flex; gap:3px; align-items:center;}
+  .cbSteps s{flex:1; height:9px; border-radius:5px; background:var(--gray-bg); text-decoration:none; cursor:pointer; border:1px solid transparent; transition:transform .1s;}
+  .cbSteps s:hover{border-color:var(--ink); transform:scaleY(1.35);}
+  .cbSteps s.done{background:var(--green);}
+  .cbSteps s.cur{background:var(--muted2);}
+  .cbSteps s.cur.rc-accent{background:var(--accent);} .cbSteps s.cur.rc-orange{background:var(--orange);}
+  .cbSteps s.cur.rc-red{background:var(--red);} .cbSteps s.cur.rc-green{background:var(--green);}
+  .cbLane .st{color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;}
+  .cbLane .st.isDone{color:var(--green);}
+  .cbWarn{font-size:12.5px; padding:3px 8px; border-radius:8px; background:var(--gray-bg); color:var(--sub); line-height:1.5;}
+  .cbNext{display:flex; gap:6px; align-items:center; border-top:1px dashed var(--line); padding-top:7px;}
+  .cbNext b{font-size:12.5px; color:var(--accent); white-space:nowrap;}
+  .cbCard .cbNext .miniInput, .cbCard .cbWho .miniInput{flex:1; min-width:0; width:auto; border-color:transparent; background:transparent; padding:2px 6px; font-size:13.5px;}
+  .cbCard .cbWho .miniInput{font-size:12.5px; color:var(--sub);}
+  .cbCard .cbNext .miniInput:focus, .cbCard .cbWho .miniInput:focus{border-color:var(--line); background:var(--card);}
+  .cbCard .cbNext .miniInput::placeholder, .cbCard .cbWho .miniInput::placeholder{color:var(--muted2);}
+  .cbMeta{display:flex; justify-content:space-between; gap:8px; font-size:12px; color:var(--muted2); align-items:center;}
+  .cbMeta .cbWho{flex:1; display:flex; align-items:center; gap:4px; min-width:0;}
+  .cbMeta .isStaleTxt{color:var(--red); font-weight:600; white-space:nowrap;}
+  .cbMeta .cbUpd{white-space:nowrap;}
+  .cbDetail{border-top:1px solid var(--line); padding-top:8px; font-size:13px; display:flex; flex-direction:column; gap:8px;}
+  .cbDetail .cbSec{font-size:12.5px; color:var(--sub); font-weight:600;}
+  .cbHist{margin:0; padding-left:18px; color:var(--sub); line-height:1.7; font-size:12.5px;}
+  .cbHist li{margin:0;}
+  .cbActs{display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
+  .cbStatus{margin:0 2px 10px; padding:8px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--cell-bg); font-size:13px; line-height:1.7;}
+  .cbStatus.ok{border-color:var(--green); background:var(--green-bg);}
+  .cbStatus.err{border-color:var(--red); background:var(--red-bg);}
+  .cbCfg textarea.trkNote{min-height:70px; font-size:13px; margin-top:4px;}
+  .cbCfgRow{display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:6px;}
+  @media (max-width:600px){
+    .cbGrid{grid-template-columns:1fr;}
+    .cbKpis{grid-template-columns:repeat(3,1fr);}
+    .cbKpi{padding:8px 10px;} .cbKpi .n{font-size:21px;}
+    .cbCard .cbNext .miniInput, .cbCard .cbWho .miniInput{border-color:var(--line); background:var(--card);}
+    .cbCard .cbBall{margin-left:auto;}
+  }
+  @media (pointer:coarse){ .cbSteps s{height:14px;} }
 </style>
 </head>
 <body>
@@ -4005,15 +4074,21 @@ function renderTracker(){
   // 📦/📇 分頁：名單＝可重複用的資料庫、追蹤＝進行中的作業——分開看，頁面不打架
   const tabBar=document.createElement('div'); tabBar.className='viewToggle';
   tabBar.style.cssText='margin-bottom:12px;display:inline-flex;';
-  [['trk','📦 追蹤項目（'+visTrackers.length+'）'],['roster','📇 名單（'+visRosters.length+'）']].forEach(([k,l])=>{
+  // v61：第三個分頁 🧭 追案看板（一個對象 × 多條線）；上次看的分頁會記住
+  if (!uiTrk.tab) uiTrk.tab=(settings.ui&&settings.ui.trkTab)||'trk';
+  const nCases=cases.filter(c=>spaceMatch(c.space)&&!c.closed).length;
+  [['cases','🧭 追案看板（'+nCases+'）'],['trk','📦 追蹤項目（'+visTrackers.length+'）'],['roster','📇 名單（'+visRosters.length+'）']].forEach(([k,l])=>{
     const b=document.createElement('button');
     if ((uiTrk.tab||'trk')===k) b.className='on';
     b.textContent=l;
-    b.title= k==='trk' ? '進行中的勾選作業' : '可重複使用的名單資料庫（成員資料、綁聯絡人、參與哪些追蹤）';
-    b.onclick=()=>{ uiTrk.tab=k; renderTracker(); };
+    b.title= k==='trk' ? '進行中的勾選作業（一件事 × 一群人，誰交了打勾）'
+          : k==='cases' ? '一個對象身上好幾條事、每條有階段、現在球在誰（每校／每廠商／每客戶一張卡）'
+          : '可重複使用的名單資料庫（成員資料、綁聯絡人、參與哪些追蹤）';
+    b.onclick=()=>{ uiTrk.tab=k; settings.ui=settings.ui||{}; settings.ui.trkTab=k; saveSettings(); renderTracker(); };
     tabBar.appendChild(b);
   });
   wrap.appendChild(tabBar);
+  if ((uiTrk.tab||'trk')==='cases'){ renderCaseBoard(wrap); return; }
 
   if ((uiTrk.tab||'trk')==='roster'){
   /* ── 名單管理卡 ── */
@@ -4885,6 +4960,613 @@ function trackerCard(trk){
     note.placeholder='這個追蹤的備註…（自動儲存）'; note.value=trk.note||'';
     note.onchange=()=>{ trk.note=note.value; saveTrack(); };
     card.appendChild(note);
+  }
+  return card;
+}
+
+/* ───────── 🧭 追案看板（v61）：一個案子 × 多條線 × 多階段 × 球在誰 ─────────
+   跟「📦 追蹤項目」（一件事 × 一群人，每人一格勾）互補：追案看板追的是「一個對象身上有好幾條平行的事，
+   每條事有順序、有些會一批批重複發生、現在卡在誰手上」。程式只認七個抽象詞：案子／軌（範本）／線／階段／
+   批次／角色（球在誰）／日期——角色名、線名、階段名這類字全在使用者自己的設定裡，程式碼不出現任何業務名詞。
+   資料：taskInbox.cases；設定：settings.caseCfg（roles/tracks/staleDays）。匯入更新檔格式見 caseImportApply()。 */
+const CASES_KEY='taskInbox.cases';
+let cases=[];
+const CASE_COLORS=['accent','orange','red','green'];
+function defaultCaseCfg(){ return {
+  roles:[{id:'me',name:'我',color:'accent'},{id:'them',name:'對方',color:'red'},{id:'third',name:'第三方',color:'orange'}],
+  tracks:[
+    {id:'std', name:'標準', lanes:[{name:'進度線', stages:['收到','處理中','送出','對方確認','完成']}]},
+    {id:'buy', name:'採購驗收', lanes:[{name:'進度線', stages:['收到','處理中','送出','對方確認','完成']},{name:'經費線', stages:['報價','簽約','履約','驗收','收據']}]}
+  ],
+  staleDays:7
+};}
+function caseCfg(){
+  if (!settings.caseCfg) settings.caseCfg=defaultCaseCfg();
+  const c=settings.caseCfg, d=defaultCaseCfg();
+  if (!Array.isArray(c.roles)||!c.roles.length) c.roles=d.roles;
+  if (!Array.isArray(c.tracks)||!c.tracks.length) c.tracks=d.tracks;
+  if (!(c.staleDays>0)) c.staleDays=7;
+  return c;
+}
+function caseRole(id){ return caseCfg().roles.find(r=>r.id===id)||null; }
+function caseRoleCls(id){ const r=caseRole(id); return r ? 'rc-'+(CASE_COLORS.includes(r.color)?r.color:'accent') : 'rc-none'; }
+function loadCases(){
+  try{ cases=JSON.parse(localStorage.getItem(CASES_KEY))||[]; }catch(e){ cases=[]; }
+  cases.forEach(c=>{
+    if (!c.space) c.space='work';
+    if (!Array.isArray(c.lanes)) c.lanes=[];
+    c.lanes.forEach(l=>{ if(!l.id) l.id=uid(); if(!Array.isArray(l.stages)) l.stages=[]; if(!(l.cur>=0)) l.cur=0; });
+    if (!Array.isArray(c.batches)) c.batches=[];
+    c.batches.forEach(b=>{ if(!b.id) b.id=uid(); if(!Array.isArray(b.stages)) b.stages=[]; if(!(b.cur>=0)) b.cur=0; });
+    if (!Array.isArray(c.hist)) c.hist=[];
+    if (!c.updated) c.updated=c.created||toISO(new Date());
+    if (c.closed===undefined) c.closed=false;
+  });
+}
+function saveCases(){ localStorage.setItem(CASES_KEY, JSON.stringify(cases)); }
+const uiCase={ open:null, filter:'all', q:'', newCase:false, ncName:'', ncTrack:null, ncCat:null,
+  ballPick:null, batchAdd:null, laneAdd:null, delPending:null, delTimer:null, cfgOpen:false, status:null, pendingImport:null, rename:null };
+function caseTouch(c, line){
+  c.updated=toISO(new Date());
+  if (line){ c.hist.unshift({d:c.updated, t:line}); if (c.hist.length>80) c.hist.length=80; }
+  saveCases();
+}
+function caseDaysSince(iso){ const d=fromISO(iso); return d ? Math.round((new Date().setHours(0,0,0,0)-d.getTime())/86400000) : 9999; }
+function caseIsStale(c){ return !c.closed && caseDaysSince(c.updated)>caseCfg().staleDays; }
+function caseStageLabel(o){ return o.cur>=o.stages.length ? '完成' : (o.stages[o.cur]||'')+' 中'; }
+function visCases(){ return cases.filter(c=>spaceMatch(c.space)); }
+function caseMatch(c){
+  const f=uiCase.filter;
+  if (c.closed && f!=='closed') return false;
+  if (f==='closed') return c.closed;
+  if (f==='stale') return caseIsStale(c);
+  if (f==='batch') return c.batches.some(b=>!b.done);
+  if (f==='all') return true;
+  if (f==='none') return !c.ball || !caseRole(c.ball);
+  return c.ball===f;
+}
+function mkSteps(o, ballCls, onSet){
+  const w=document.createElement('div'); w.className='cbSteps';
+  o.stages.forEach((name,i)=>{
+    const s=document.createElement('s');
+    s.className = i<o.cur ? 'done' : (i===o.cur ? 'cur '+ballCls : '');
+    s.title = name + (i<o.cur ? '（已完成，點一下退回這一格）' : i===o.cur ? '（進行中，點一下標示完成）' : '（點一下直接跳到這一格完成）');
+    if (onSet){
+      s.onclick=e=>{ e.stopPropagation(); onSet(i<o.cur && i===o.cur-1 ? i : i+1); };
+    }
+    w.appendChild(s);
+  });
+  return w;
+}
+/* 📥 匯入更新檔：{format:'catlendar-cases', cases:[…], roles?, tracks?}
+   合併規則（給 AI 產檔用，也是使用者手動匯入的規則）：
+   ・案子：有 id 用 id 對、沒有就用 name（同空間）對；找不到＝新建。
+   ・線：用 name 對；有給 stages 就覆蓋 stages、有給 cur 就覆蓋 cur；新的線追加。
+   ・批次：用 label 對；更新 cur/done；新的追加（stages 沒給就抄該線）。
+   ・ball/next/who/note/track/cat：檔案裡有這個欄位才覆蓋，沒給的保留原值。
+   ・hist：只追加「日期＋文字」都不存在的行。updated：檔案有給就用、沒給就今天。
+   ・roles/tracks：檔案有給才覆蓋設定（第一次灌資料時順便把角色與範本一起帶進來）。 */
+function caseImportApply(data){
+  const cfg=caseCfg();
+  let added=0, updated=0;
+  if (Array.isArray(data.roles) && data.roles.length){
+    cfg.roles=data.roles.slice(0,6).map((r,i)=>({id:r.id||('r'+i), name:String(r.name||'角色'+(i+1)).slice(0,10), color:CASE_COLORS.includes(r.color)?r.color:CASE_COLORS[i%4]}));
+  }
+  if (Array.isArray(data.tracks) && data.tracks.length){
+    cfg.tracks=data.tracks.map(t=>({id:t.id||uid(), name:String(t.name||'範本'), lanes:(t.lanes||[]).map(l=>({name:String(l.name||'線'), stages:(l.stages||[]).map(String)}))}));
+  }
+  saveSettings();
+  const sp=inAllView()?'work':settings.space;
+  const today=toISO(new Date());
+  (data.cases||[]).forEach(src=>{
+    if (!src || !(src.name||src.id)) return;
+    let c = (src.id && cases.find(x=>x.id===src.id)) || cases.find(x=>x.name===src.name && (x.space||'work')===(src.space||sp));
+    const isNew=!c;
+    if (isNew){
+      c={id:src.id||uid(), name:String(src.name), space:src.space||sp, cat:'', track:'', lanes:[], batches:[], hist:[], ball:'', next:'', who:'', note:'', closed:false, created:today, updated:today};
+      cases.unshift(c); added++;
+    } else updated++;
+    ['track','cat','ball','next','who','note'].forEach(k=>{ if (src[k]!==undefined) c[k]=String(src[k]||''); });
+    if (src.closed!==undefined) c.closed=!!src.closed;
+    const tpl=cfg.tracks.find(t=>t.name===c.track);   // 線沒給階段時，從這個案子的軌範本抄同名線的階段
+    (src.lanes||[]).forEach(sl=>{
+      if (!sl||!sl.name) return;
+      let l=c.lanes.find(x=>x.name===sl.name);
+      if (!l){
+        const tl=tpl && tpl.lanes.find(x=>x.name===sl.name);
+        l={id:uid(), name:String(sl.name), stages:tl?tl.stages.slice():[], cur:0}; c.lanes.push(l);
+      }
+      if (Array.isArray(sl.stages)&&sl.stages.length) l.stages=sl.stages.map(String);
+      if (!l.stages.length){ const tl=tpl && tpl.lanes.find(x=>x.name===l.name); if (tl) l.stages=tl.stages.slice(); }
+      if (sl.cur!==undefined) l.cur=Math.max(0, Math.min(l.stages.length, +sl.cur||0));
+    });
+    (src.batches||[]).forEach(sb=>{
+      if (!sb||!sb.label) return;
+      let b=c.batches.find(x=>x.label===sb.label);
+      const lane=c.lanes.find(x=>x.name===sb.lane)||c.lanes[0];
+      if (!b){ b={id:uid(), label:String(sb.label), laneId:lane?lane.id:null, stages:(Array.isArray(sb.stages)&&sb.stages.length)?sb.stages.map(String):(lane?lane.stages.slice():[]), cur:0, done:false, at:sb.at||today}; c.batches.push(b); }
+      else if (Array.isArray(sb.stages)&&sb.stages.length) b.stages=sb.stages.map(String);
+      if (sb.cur!==undefined) b.cur=Math.max(0, Math.min(b.stages.length, +sb.cur||0));
+      if (sb.done!==undefined) b.done=!!sb.done;
+      else if (b.cur>=b.stages.length && b.stages.length) b.done=true;
+    });
+    (src.hist||[]).forEach(h=>{
+      if (!h||!h.t) return;
+      const d=h.d||today;
+      if (!c.hist.some(x=>x.d===d&&x.t===h.t)) c.hist.push({d, t:String(h.t)});
+    });
+    c.hist.sort((a,b)=>(b.d||'').localeCompare(a.d||''));
+    c.updated=src.updated||today;
+  });
+  saveCases();
+  return {added, updated};
+}
+function caseImportFile(f){
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if (!(data && data.format==='catlendar-cases' && Array.isArray(data.cases))) throw new Error('不是追案更新檔（format 要是 catlendar-cases）');
+      uiCase.pendingImport={data, fname:f.name};
+      uiCase.status=null;
+    }catch(err){
+      uiCase.status={ok:false, t:'⚠️ 讀不了「'+f.name+'」：'+(err&&err.message||err)};
+    }
+    renderTracker();
+  };
+  r.readAsText(f,'utf-8');
+}
+function caseExport(){
+  const cfg=caseCfg();
+  const payload={format:'catlendar-cases', exportedAt:toISO(new Date()), roles:cfg.roles, tracks:cfg.tracks,
+    cases:visCases().map(c=>({id:c.id, name:c.name, space:c.space, track:c.track, cat:c.cat, ball:c.ball, next:c.next, who:c.who, note:c.note, closed:c.closed, updated:c.updated,
+      lanes:c.lanes.map(l=>({name:l.name, stages:l.stages, cur:l.cur})),
+      batches:c.batches.map(b=>({label:b.label, lane:(c.lanes.find(x=>x.id===b.laneId)||{}).name, stages:b.stages, cur:b.cur, done:b.done, at:b.at})),
+      hist:c.hist}))};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='Catlendar追案_'+toISO(new Date())+'.json'; a.click(); URL.revokeObjectURL(a.href);
+  uiCase.status={ok:true, t:'📤 匯出好了：'+a.download+'（'+payload.cases.length+' 個案子）。這份檔可以交給 AI 讀、也可以在別台電腦按「📥 匯入更新檔」合併回來。'};
+  renderTracker();
+}
+function renderCaseBoard(wrap){
+  const cfg=caseCfg();
+  const ro=inAllView();
+  const all=visCases();
+  const openCases=all.filter(c=>!c.closed);
+
+  // 標題列
+  const top=document.createElement('div'); top.className='cbTop';
+  const tt=document.createElement('span'); tt.className='tTitle'; tt.textContent='🧭 追案看板'; top.appendChild(tt);
+  const sp0=document.createElement('span'); sp0.className='spacer'; top.appendChild(sp0);
+  if (!ro){
+    const addB=document.createElement('button'); addB.className='ghostBtn';
+    addB.textContent=uiCase.newCase?'收起':'＋ 新增案子';
+    addB.onclick=()=>{ uiCase.newCase=!uiCase.newCase; uiCase.cfgOpen=false; renderTracker(); };
+    top.appendChild(addB);
+    const impB=document.createElement('button'); impB.className='ghostBtn'; impB.textContent='📥 匯入更新檔';
+    impB.title='匯入 AI 或別台電腦產生的追案更新檔（JSON）：依「案子＋線」合併，不會刪掉現有資料，匯入前自動拍快照';
+    const impIn=document.createElement('input'); impIn.type='file'; impIn.accept='.json'; impIn.style.display='none';
+    impB.onclick=()=>impIn.click();
+    impIn.onchange=e=>{ const f=e.target.files[0]; if(f) caseImportFile(f); e.target.value=''; };
+    top.append(impB, impIn);
+  }
+  const expB=document.createElement('button'); expB.className='ghostBtn'; expB.textContent='📤 匯出案子';
+  expB.title='把目前空間的案子匯出成 JSON（給 AI 讀、或搬到別台電腦合併）';
+  expB.onclick=caseExport; top.appendChild(expB);
+  if (!ro){
+    const cfgB=document.createElement('button'); cfgB.className='ghostBtn'; cfgB.textContent='⚙ 看板設定';
+    cfgB.title='角色名稱與顏色（球在誰）、軌範本（每條線有哪些階段）、幾天沒更新算擱置';
+    if (uiCase.cfgOpen){ cfgB.style.borderColor='var(--accent)'; cfgB.style.color='var(--accent)'; }
+    cfgB.onclick=()=>{ uiCase.cfgOpen=!uiCase.cfgOpen; uiCase.newCase=false; renderTracker(); };
+    top.appendChild(cfgB);
+  }
+  wrap.appendChild(top);
+
+  // 固定顯示的狀態列（鐵則2：匯入成功/失敗不能只靠貓咪泡泡）
+  if (uiCase.status){
+    const st=document.createElement('div'); st.className='cbStatus '+(uiCase.status.ok?'ok':'err');
+    st.textContent=uiCase.status.t;
+    const x=document.createElement('button'); x.className='qbtn'; x.style.marginLeft='10px'; x.textContent='✖ 關閉';
+    x.onclick=()=>{ uiCase.status=null; renderTracker(); };
+    st.appendChild(x); wrap.appendChild(st);
+  }
+  // 📥 匯入預覽：先列出會新增／更新幾個案子，按確認才真的合併
+  if (uiCase.pendingImport){
+    const d=uiCase.pendingImport.data;
+    const sp=settings.space;
+    const names=(d.cases||[]).filter(s=>s&&(s.name||s.id));
+    const nNew=names.filter(s=>!((s.id&&cases.find(x=>x.id===s.id))||cases.find(x=>x.name===s.name&&(x.space||'work')===(s.space||sp)))).length;
+    const pv=document.createElement('div'); pv.className='cbStatus';
+    pv.innerHTML='<b>📥 追案更新檔預覽</b>　<span style="color:var(--muted2);">'+esc(uiCase.pendingImport.fname)+'</span><br>'
+      +'<span style="color:var(--sub);">'+names.length+' 個案子：新增 '+nNew+'、更新 '+(names.length-nNew)
+      +(Array.isArray(d.roles)&&d.roles.length?'｜會套用檔案裡的角色設定':'')+(Array.isArray(d.tracks)&&d.tracks.length?'｜會套用檔案裡的軌範本':'')+'</span><br>'
+      +'<span style="color:var(--muted2);">合併方式：同名案子只更新檔案裡有給的欄位，你手改的其他內容不動；匯入前會自動拍一張快照當還原點。</span>';
+    const row=document.createElement('div'); row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;';
+    const ok=document.createElement('button'); ok.className='qbtn';
+    ok.style.cssText='background:var(--accent);color:var(--on-accent,#fff);font-weight:700;'; ok.textContent='✅ 確認匯入';
+    ok.onclick=()=>{
+      try{
+        takeSnapshot(false);
+        const r=caseImportApply(d);
+        uiCase.status={ok:true, t:'✅ 匯入完成：新增 '+r.added+' 個、更新 '+r.updated+' 個案子（'+uiCase.pendingImport.fname+'）。有問題可到 ⚙️ 設定 → 🕒 自動快照 還原。'};
+        catSay('追案更新好了喵！',2600,'happy');
+      }catch(err){ uiCase.status={ok:false, t:'⚠️ 匯入失敗：'+(err&&err.message||err)}; }
+      uiCase.pendingImport=null; renderTracker();
+    };
+    const no=document.createElement('button'); no.className='qbtn'; no.textContent='✖ 取消';
+    no.onclick=()=>{ uiCase.pendingImport=null; renderTracker(); };
+    row.append(ok,no); pv.appendChild(row); wrap.appendChild(pv);
+  }
+
+  // ⚙ 看板設定（角色／軌範本／擱置天數）
+  if (uiCase.cfgOpen && !ro){
+    const cg=document.createElement('div'); cg.className='trkCard cbCfg';
+    cg.innerHTML='<div class="trkHead"><span class="tTitle">⚙ 看板設定</span></div>'
+      +'<div class="setNote">改這裡不會動到已建好的案子（案子各自保存自己的線與階段）；新案子才會用新的範本。</div>';
+    // 角色
+    const rs=document.createElement('div'); rs.className='cbSec'; rs.style.marginTop='8px'; rs.textContent='🎯 角色（球在誰）——最多 6 個，顏色四選'; cg.appendChild(rs);
+    cfg.roles.forEach((r,i)=>{
+      const row=document.createElement('div'); row.className='cbCfgRow';
+      const ni=document.createElement('input'); ni.className='miniInput'; ni.style.width='120px'; ni.value=r.name; ni.placeholder='角色名';
+      ni.onchange=()=>{ r.name=ni.value.trim()||r.name; saveSettings(); renderTracker(); };
+      const cs=document.createElement('select'); cs.className='miniSelect';
+      [['accent','主題色'],['orange','橘'],['red','紅'],['green','綠']].forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; if(r.color===v) o.selected=true; cs.appendChild(o); });
+      cs.onchange=()=>{ r.color=cs.value; saveSettings(); renderTracker(); };
+      const pre=document.createElement('span'); pre.className='cbBall '+caseRoleCls(r.id); pre.style.marginLeft='0'; pre.style.cursor='default'; pre.textContent='等'+r.name;
+      row.append(ni,cs,pre);
+      if (cfg.roles.length>1){
+        const del=document.createElement('button'); del.className='qbtn subtleBtn'; del.innerHTML=riIcon('trash'); del.title='移除這個角色（案子上原本指到它的會變成「暫無待辦」）';
+        del.onclick=()=>{ cfg.roles.splice(i,1); saveSettings(); renderTracker(); };
+        row.appendChild(del);
+      }
+      cg.appendChild(row);
+    });
+    if (cfg.roles.length<6){
+      const addR=document.createElement('button'); addR.className='qbtn'; addR.style.marginTop='6px'; addR.textContent='＋ 加角色';
+      addR.onclick=()=>{ cfg.roles.push({id:uid(), name:'角色'+(cfg.roles.length+1), color:CASE_COLORS[cfg.roles.length%4]}); saveSettings(); renderTracker(); };
+      cg.appendChild(addR);
+    }
+    // 軌範本
+    const ts=document.createElement('div'); ts.className='cbSec'; ts.style.marginTop='12px'; ts.textContent='🛤 軌範本——一行一條線：「線名：階段1 > 階段2 > 階段3」'; cg.appendChild(ts);
+    cfg.tracks.forEach((t,i)=>{
+      const row=document.createElement('div'); row.className='cbCfgRow'; row.style.alignItems='flex-start';
+      const col=document.createElement('div'); col.style.cssText='flex:1;min-width:240px;';
+      const ni=document.createElement('input'); ni.className='miniInput'; ni.style.width='160px'; ni.value=t.name; ni.placeholder='範本名';
+      ni.onchange=()=>{ t.name=ni.value.trim()||t.name; saveSettings(); renderTracker(); };
+      const ta=document.createElement('textarea'); ta.className='trkNote';
+      ta.value=t.lanes.map(l=>l.name+'：'+l.stages.join(' > ')).join('\n');
+      ta.placeholder='進度線：收到 > 處理中 > 送出 > 完成';
+      ta.onchange=()=>{
+        t.lanes=ta.value.split('\n').map(s=>s.trim()).filter(Boolean).map(line=>{
+          const m=line.split(/[:：]/); const name=(m.shift()||'').trim();
+          const stages=m.join(':').split(/\s*[>＞→]\s*/).map(s=>s.trim()).filter(Boolean);
+          return {name:name||'線', stages};
+        }).filter(l=>l.stages.length);
+        saveSettings(); renderTracker();
+      };
+      col.append(ni,ta);
+      row.appendChild(col);
+      const del=document.createElement('button'); del.className='qbtn subtleBtn'; del.innerHTML=riIcon('trash'); del.title='刪除這個範本（已建的案子不受影響）';
+      del.onclick=()=>{ if (cfg.tracks.length>1){ cfg.tracks.splice(i,1); saveSettings(); renderTracker(); } };
+      row.appendChild(del);
+      cg.appendChild(row);
+    });
+    const addT=document.createElement('button'); addT.className='qbtn'; addT.style.marginTop='6px'; addT.textContent='＋ 加範本';
+    addT.onclick=()=>{ cfg.tracks.push({id:uid(), name:'新範本', lanes:[{name:'進度線', stages:['收到','處理中','完成']}]}); saveSettings(); renderTracker(); };
+    cg.appendChild(addT);
+    // 擱置天數
+    const sd=document.createElement('div'); sd.className='cbCfgRow'; sd.style.marginTop='12px';
+    sd.appendChild(mkLbl('⏳ 超過幾天沒更新算擱置（卡片變淡、可篩選）：'));
+    const sdI=document.createElement('input'); sdI.type='number'; sdI.className='miniInput'; sdI.style.width='70px'; sdI.min=1; sdI.value=cfg.staleDays;
+    sdI.onchange=()=>{ const v=parseInt(sdI.value); if (v>0){ cfg.staleDays=v; saveSettings(); renderTracker(); } };
+    sd.appendChild(sdI); cg.appendChild(sd);
+    wrap.appendChild(cg);
+  }
+
+  // ＋ 新增案子
+  if (uiCase.newCase && !ro){
+    const f=document.createElement('div'); f.className='trkCard';
+    const fld=(lab,el)=>{ const d=document.createElement('span'); d.className='fField'; const l=document.createElement('span'); l.className='fLab'; l.textContent=lab; d.append(l,el); return d; };
+    const ni=document.createElement('input'); ni.className='miniInput'; ni.style.width='260px';
+    ni.placeholder='例：某某大學、某某廠商、某個客戶'; ni.value=uiCase.ncName; ni.oninput=()=>{ uiCase.ncName=ni.value; };
+    const r1=document.createElement('div'); r1.className='fRow'; r1.appendChild(fld('案子（對象）＊',ni)); f.appendChild(r1);
+    const r2=document.createElement('div'); r2.style.cssText='display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;';
+    r2.appendChild(mkLbl('軌（範本）：'));
+    if (!uiCase.ncTrack || !cfg.tracks.find(t=>t.id===uiCase.ncTrack)) uiCase.ncTrack=cfg.tracks[0].id;
+    cfg.tracks.forEach(t=>{
+      const c=document.createElement('span'); c.className='memberTag'+(uiCase.ncTrack===t.id?' on':'');
+      c.textContent=t.name+'（'+t.lanes.length+' 條線）'; c.title=t.lanes.map(l=>l.name+'：'+l.stages.join(' > ')).join('\n');
+      c.onclick=()=>{ uiCase.ncTrack=t.id; renderTracker(); };
+      r2.appendChild(c);
+    });
+    f.appendChild(r2);
+    const r3=document.createElement('div'); r3.style.cssText='display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;';
+    r3.appendChild(mkLbl('專案分類：'));
+    catsForSpace(settings.space).filter(c=>c.vis!=='hideAll').forEach(c=>{
+      const b=document.createElement('span'); b.className='memberTag '+((uiCase.ncCat||'')===c.name?'on ':'')+colorClass(c.name);
+      b.textContent=c.name; b.onclick=()=>{ uiCase.ncCat=c.name; renderTracker(); }; r3.appendChild(b);
+    });
+    f.appendChild(r3);
+    const ok=document.createElement('button'); ok.className='btnAdd'; ok.style.marginTop='10px'; ok.textContent='建立案子';
+    const go=()=>{
+      const name=ni.value.trim(); if(!name) return;
+      const t=cfg.tracks.find(x=>x.id===uiCase.ncTrack)||cfg.tracks[0];
+      const today=toISO(new Date());
+      const c={id:uid(), name, space:settings.space, cat:uiCase.ncCat||'', track:t.name,
+        lanes:t.lanes.map(l=>({id:uid(), name:l.name, stages:l.stages.slice(), cur:0})), batches:[], hist:[{d:today, t:'建立案子（'+t.name+'）'}],
+        ball:'', next:'', who:'', note:'', closed:false, created:today, updated:today};
+      cases.unshift(c); saveCases();
+      uiCase.newCase=false; uiCase.ncName=''; uiCase.open=c.id; renderTracker();
+      catSay('「'+name+'」建好了！點線上的格子推進度、點右上角標「球在誰」喵',3200,'happy');
+    };
+    ok.onclick=go; ni.onkeydown=e=>{ if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229) go(); };
+    f.appendChild(ok); wrap.appendChild(f);
+    setTimeout(()=>ni.focus(),0);
+  }
+
+  if (!all.length){
+    if (!uiCase.newCase){
+      const e=document.createElement('div'); e.className='empty';
+      e.textContent='還沒有案子喵🐾 「追案看板」適合追「一個對象身上有好幾條事、每條事有順序、現在卡在誰手上」——例如每間學校／每個廠商／每位客戶一張卡。按「＋ 新增案子」開始，或請 AI 產「追案更新檔」再按 📥 匯入。';
+      wrap.appendChild(e);
+    }
+    return;
+  }
+
+  // KPI ＋ 球在誰
+  const cnt=id=>openCases.filter(c=>c.ball===id).length;
+  const noneCnt=openCases.filter(c=>!c.ball||!caseRole(c.ball)).length;
+  const staleCnt=openCases.filter(caseIsStale).length;
+  const batchCnt=openCases.filter(c=>c.batches.some(b=>!b.done)).length;
+  const kp=document.createElement('div'); kp.className='cbKpis';
+  const mkK=(n,l,f,cls)=>{ const k=document.createElement('div'); k.className='cbKpi'+(uiCase.filter===f&&f!=='all'?' on':''); k.setAttribute('role','button'); k.tabIndex=0;
+    k.innerHTML='<div class="n"'+(cls?' style="color:'+cls+'"':'')+'>'+n+'</div><div class="l">'+esc(l)+'</div>';
+    const act=()=>{ uiCase.filter = (uiCase.filter===f && f!=='all') ? 'all' : f; renderTracker(); };
+    k.onclick=act; k.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); act(); } };
+    kp.appendChild(k); };
+  mkK(openCases.length,'進行中的案子','all');
+  cfg.roles.forEach(r=>mkK(cnt(r.id),'等'+r.name,r.id,{accent:'var(--accent)',orange:'var(--orange)',red:'var(--red)',green:'var(--green)'}[r.color]||'var(--accent)'));
+  mkK(noneCnt,'暫無待辦','none','var(--muted2)');
+  mkK(batchCnt,'有批次進行中','batch');
+  mkK(staleCnt,cfg.staleDays+' 天沒更新','stale', staleCnt?'var(--red)':undefined);
+  if (all.some(c=>c.closed)) mkK(all.filter(c=>c.closed).length,'已結案','closed','var(--muted2)');
+  wrap.appendChild(kp);
+  if (openCases.length){
+    const stack=document.createElement('div'); stack.className='cbStack';
+    const parts=[...cfg.roles.map(r=>({n:cnt(r.id), cls:caseRoleCls(r.id)})), {n:noneCnt, cls:'rc-none'}];
+    parts.forEach(p=>{ if(!p.n) return; const i=document.createElement('i'); i.className=p.cls; i.style.width=(p.n/openCases.length*100)+'%'; i.textContent=p.n; stack.appendChild(i); });
+    wrap.appendChild(stack);
+    const lg=document.createElement('div'); lg.className='cbLegend';
+    cfg.roles.forEach(r=>{ const s=document.createElement('span'); s.innerHTML='<b class="'+caseRoleCls(r.id)+'"></b>等'+esc(r.name); lg.appendChild(s); });
+    const s0=document.createElement('span'); s0.innerHTML='<b class="rc-none" style="background:var(--muted2)"></b>暫無待辦'; lg.appendChild(s0);
+    wrap.appendChild(lg);
+  }
+
+  // 篩選 ＋ 搜尋
+  const fr=document.createElement('div'); fr.className='cbFilters';
+  [['all','全部'],...cfg.roles.map(r=>[r.id,'等'+r.name]),['none','暫無待辦'],['batch','批次進行中'],['stale',cfg.staleDays+' 天沒更新'],['closed','已結案']].forEach(([k,l])=>{
+    if (k==='closed' && !all.some(c=>c.closed)) return;
+    const b=document.createElement('span'); b.className='memberTag'+(uiCase.filter===k?' on':''); b.textContent=l;
+    b.onclick=()=>{ uiCase.filter=k; renderTracker(); }; fr.appendChild(b);
+  });
+  fr.appendChild(mkSearchBox('caseSearch','🔍 搜尋案子／下一步／窗口…',()=>uiCase.q,v=>uiCase.q=v,renderTracker));
+  const q=uiCase.q.trim();
+  const order={}; cfg.roles.forEach((r,i)=>order[r.id]=i);
+  const list=all.filter(caseMatch).filter(c=>!q || (c.name+' '+(c.next||'')+' '+(c.who||'')+' '+(c.note||'')+' '+(c.track||'')+' '+c.batches.map(b=>b.label).join(' ')).includes(q))
+    .sort((a,b)=>{ const oa=a.closed?99:(order[a.ball]??50), ob=b.closed?99:(order[b.ball]??50); return oa-ob || (b.updated||'').localeCompare(a.updated||''); });
+  const cc=document.createElement('span'); cc.className='cbCount'; cc.textContent='顯示 '+list.length+' / '+all.length+' 個案子'; fr.appendChild(cc);
+  wrap.appendChild(fr);
+  if (!list.length){
+    const e=document.createElement('div'); e.className='emptyLine'; e.textContent='這個條件下沒有案子。案子都還在，換個篩選或清掉搜尋字就會出現。'; wrap.appendChild(e);
+  }
+
+  const grid=document.createElement('div'); grid.className='cbGrid';
+  list.forEach(c=>grid.appendChild(caseCard(c, cfg, ro)));
+  wrap.appendChild(grid);
+  const foot=document.createElement('div'); foot.className='calLegend'; foot.style.cssText+='text-align:left;margin-top:10px;';
+  foot.textContent='顏色只有角色色＋灰：一眼看「現在球在誰」。點線上的格子＝推進／退回一格；點案子名稱＝展開歷史與批次；超過 '+cfg.staleDays+' 天沒動的卡片會變淡提醒你去看一眼。';
+  wrap.appendChild(foot);
+}
+function caseCard(c, cfg, ro){
+  const card=document.createElement('div'); card.className='trkCard cbCard'+(caseIsStale(c)?' isStale':'')+(c.closed?' isClosed':'');
+  card.id='case_'+c.id;
+  const ballCls=caseRoleCls(c.ball);
+  const isOpen=uiCase.open===c.id;
+  // 標題列
+  const hd=document.createElement('div'); hd.className='cbHead';
+  if (uiCase.rename===c.id && !ro){
+    const ti=document.createElement('input'); ti.className='miniInput'; ti.style.width='200px'; ti.value=c.name;
+    const commit=()=>{ const v=ti.value.trim(); if (v&&v!==c.name){ c.name=v; caseTouch(c,null); } uiCase.rename=null; renderTracker(); };
+    ti.onkeydown=e=>{ if(e.key==='Enter'&&!e.isComposing) commit(); if(e.key==='Escape'){ uiCase.rename=null; renderTracker(); } };
+    ti.onblur=commit; hd.appendChild(ti); setTimeout(()=>{ ti.focus(); ti.select(); },0);
+  } else {
+    const nm=document.createElement('span'); nm.className='cbName'; nm.textContent=(isOpen?'▾ ':'▸ ')+c.name;
+    nm.title=isOpen?'點擊收合':'點擊展開歷史、批次與更多動作'; nm.setAttribute('role','button'); nm.tabIndex=0;
+    const tog=()=>{ uiCase.open=isOpen?null:c.id; renderTracker(); };
+    nm.onclick=tog; nm.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tog(); } };
+    hd.appendChild(nm);
+  }
+  if (inAllView()){ const sc=document.createElement('span'); sc.className='chip type'; sc.textContent=spaceIcon(c.space); hd.appendChild(sc); }
+  if (c.track){ const tk=document.createElement('span'); tk.className='chip type'; tk.textContent=c.track; tk.title='軌（範本）'; hd.appendChild(tk); }
+  if (c.cat){ const ck=document.createElement('span'); ck.className='chip '+colorClass(c.cat); ck.textContent='📂 '+c.cat; hd.appendChild(ck); }
+  const ball=document.createElement('span'); ball.className='cbBall '+ballCls;
+  const r=caseRole(c.ball);
+  ball.textContent= c.closed ? '已結案' : (r ? '等'+r.name : '暫無待辦');
+  ball.title='球在誰：點一下換角色';
+  if (!ro && !c.closed){
+    ball.setAttribute('role','button'); ball.tabIndex=0;
+    const act=()=>{ uiCase.ballPick = uiCase.ballPick===c.id ? null : c.id; renderTracker(); };
+    ball.onclick=act; ball.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); act(); } };
+  }
+  hd.appendChild(ball);
+  card.appendChild(hd);
+  if (uiCase.ballPick===c.id && !ro){
+    const row=document.createElement('div'); row.className='pickerRow'; row.style.marginTop='0';
+    row.appendChild(mkLbl('球在誰：'));
+    [...cfg.roles.map(r2=>[r2.id,'等'+r2.name]),['','暫無待辦']].forEach(([id,l])=>{
+      const b=document.createElement('span'); b.className='memberTag'+((c.ball||'')===id?' on':''); b.textContent=l;
+      b.onclick=()=>{ c.ball=id; uiCase.ballPick=null; caseTouch(c,null); renderTracker(); };
+      row.appendChild(b);
+    });
+    card.appendChild(row);
+  }
+  // 線
+  c.lanes.forEach(l=>{
+    const row=document.createElement('div'); row.className='cbLane';
+    const ln=document.createElement('span'); ln.className='ln'; ln.textContent=l.name; ln.title=l.name; row.appendChild(ln);
+    const box=document.createElement('div');
+    box.appendChild(mkSteps(l, ballCls, ro||c.closed ? null : n=>{ l.cur=n; caseTouch(c, l.name+' → '+caseStageLabel(l)); renderTracker(); }));
+    const st=document.createElement('div'); st.className='st'+(l.cur>=l.stages.length?' isDone':''); st.textContent=caseStageLabel(l); box.appendChild(st);
+    row.appendChild(box); card.appendChild(row);
+  });
+  // 進行中的批次（做完的收進展開區）
+  c.batches.filter(b=>!b.done).forEach(b=>{
+    const row=document.createElement('div'); row.className='cbLane';
+    const ln=document.createElement('span'); ln.className='ln isBatch'; ln.textContent='🔁 批次'; ln.title='批次：'+b.label; row.appendChild(ln);
+    const box=document.createElement('div');
+    box.appendChild(mkSteps(b, ballCls, ro||c.closed ? null : n=>{ b.cur=n; if (b.cur>=b.stages.length) b.done=true; caseTouch(c, b.label+' → '+caseStageLabel(b)); renderTracker(); }));
+    const st=document.createElement('div'); st.className='st'; st.textContent=b.label+'：'+caseStageLabel(b); box.appendChild(st);
+    row.appendChild(box); card.appendChild(row);
+  });
+  if (c.note){ const w=document.createElement('div'); w.className='cbWarn'; w.textContent='⚠ '+c.note; card.appendChild(w); }
+  // 下一步（行內編輯）
+  const nx=document.createElement('div'); nx.className='cbNext';
+  const nb=document.createElement('b'); nb.textContent='下一步'; nx.appendChild(nb);
+  const ni=document.createElement('input'); ni.className='miniInput'; ni.placeholder=ro?'—':'一句話：接下來要做什麼、等誰的什麼'; ni.value=c.next||''; ni.readOnly=ro||c.closed;
+  ni.title=c.next||'';   // 太長被截時滑過看全文
+  ni.onchange=()=>{ c.next=ni.value.trim(); ni.title=c.next; caseTouch(c,null); };
+  ni.onkeydown=e=>{ if(e.key==='Enter'&&!e.isComposing) ni.blur(); };
+  nx.appendChild(ni); card.appendChild(nx);
+  // 窗口／CC ＋ 更新日
+  const meta=document.createElement('div'); meta.className='cbMeta';
+  const who=document.createElement('span'); who.className='cbWho';
+  const wi=document.createElement('input'); wi.className='miniInput'; wi.placeholder=ro?'':'誰／CC 誰（例：窗口王小姐、CC 會計室）'; wi.value=c.who||''; wi.readOnly=ro||c.closed;
+  wi.onchange=()=>{ c.who=wi.value.trim(); caseTouch(c,null); };
+  wi.onkeydown=e=>{ if(e.key==='Enter'&&!e.isComposing) wi.blur(); };
+  who.appendChild(wi); meta.appendChild(who);
+  const up=document.createElement('span'); up.className='cbUpd'+(caseIsStale(c)?' isStaleTxt':'');
+  const ds=caseDaysSince(c.updated);
+  up.textContent='更新 '+(fromISO(c.updated)?fmtDate(fromISO(c.updated)):'—')+(ds>0&&ds<9999?'（'+ds+' 天前）':ds===0?'（今天）':'');
+  meta.appendChild(up); card.appendChild(meta);
+
+  // 展開區：批次新增／線新增／歷史／備註／動作
+  if (isOpen){
+    const dt=document.createElement('div'); dt.className='cbDetail';
+    if (!ro && !c.closed){
+      const acts=document.createElement('div'); acts.className='cbActs';
+      const bAdd=document.createElement('button'); bAdd.className='qbtn'; bAdd.textContent='🔁 加批次';
+      bAdd.title='同一條線會重複發生的事（例：第 3 批、加退選 #2）——照那條線的階段再跑一輪';
+      if (uiCase.batchAdd===c.id){ bAdd.style.background='var(--accent)'; bAdd.style.color='var(--on-accent,#fff)'; }
+      bAdd.onclick=()=>{ uiCase.batchAdd = uiCase.batchAdd===c.id?null:c.id; uiCase.laneAdd=null; renderTracker(); };
+      const lAdd=document.createElement('button'); lAdd.className='qbtn'; lAdd.textContent='＋ 加一條線';
+      lAdd.title='從軌範本挑一條線加到這個案子';
+      if (uiCase.laneAdd===c.id){ lAdd.style.background='var(--accent)'; lAdd.style.color='var(--on-accent,#fff)'; }
+      lAdd.onclick=()=>{ uiCase.laneAdd = uiCase.laneAdd===c.id?null:c.id; uiCase.batchAdd=null; renderTracker(); };
+      const rn=document.createElement('button'); rn.className='qbtn'; rn.innerHTML=riIcon('pencil'); rn.title='改名稱';
+      rn.onclick=()=>{ uiCase.rename=c.id; renderTracker(); };
+      acts.append(bAdd,lAdd,rn);
+      const catB=document.createElement('button'); catB.className='qbtn'; catB.textContent='📂 分類';
+      catB.onclick=()=>{ uiCase.catPick = uiCase.catPick===c.id?null:c.id; renderTracker(); };
+      acts.appendChild(catB);
+      const sp=document.createElement('span'); sp.className='spacer'; acts.appendChild(sp);
+      const cl=document.createElement('button'); cl.className='qbtn'; cl.textContent='✔ 結案';
+      cl.title='結案＝從看板收起（篩選「已結案」看得到，可恢復）';
+      cl.onclick=()=>{ c.closed=true; caseTouch(c,'結案'); uiCase.open=null; renderTracker(); catSay('「'+c.name+'」結案了喵🎉',2400,'happy'); };
+      acts.appendChild(cl);
+      const del=document.createElement('button'); del.className='qbtn';
+      if (uiCase.delPending===c.id){
+        del.textContent='確定刪除？'; del.style.cssText='background:var(--red);color:var(--on-red,#fff);';
+        del.onclick=()=>{ cases=cases.filter(x=>x.id!==c.id); uiCase.delPending=null; uiCase.open=null; saveCases(); renderTracker(); };
+      } else {
+        del.classList.add('subtleBtn'); del.innerHTML=riIcon('trash'); del.title='刪除（再點一次確認）';
+        del.onclick=()=>{ uiCase.delPending=c.id; clearTimeout(uiCase.delTimer); uiCase.delTimer=setTimeout(()=>{ uiCase.delPending=null; renderTracker(); },3000); renderTracker(); };
+      }
+      acts.appendChild(del);
+      dt.appendChild(acts);
+      if (uiCase.catPick===c.id){
+        const row=document.createElement('div'); row.className='pickerRow'; row.style.marginTop='0';
+        row.appendChild(mkLbl('專案分類：'));
+        catsForSpace(c.space).filter(x=>x.vis!=='hideAll').forEach(x=>{
+          const b=document.createElement('span'); b.className='memberTag '+((c.cat||'')===x.name?'on ':'')+colorClass(x.name); b.textContent=x.name;
+          b.onclick=()=>{ c.cat=x.name; uiCase.catPick=null; caseTouch(c,null); renderTracker(); }; row.appendChild(b);
+        });
+        dt.appendChild(row);
+      }
+      if (uiCase.batchAdd===c.id){
+        const row=document.createElement('div'); row.className='pickerRow'; row.style.marginTop='0';
+        row.appendChild(mkLbl('批次名稱：'));
+        const bi=document.createElement('input'); bi.className='miniInput'; bi.style.width='160px';
+        const laneSel=document.createElement('select'); laneSel.className='miniSelect';
+        c.lanes.forEach(l=>{ const o=document.createElement('option'); o.value=l.id; o.textContent='走「'+l.name+'」的階段'; laneSel.appendChild(o); });
+        const nth=c.batches.length+1; bi.placeholder='例：第 '+nth+' 批、加退選 #'+nth;
+        const okB=document.createElement('button'); okB.className='qbtn'; okB.style.cssText='background:var(--accent);color:var(--on-accent,#fff);'; okB.textContent='建立';
+        const goB=()=>{
+          const lane=c.lanes.find(l=>l.id===laneSel.value)||c.lanes[0]; if(!lane) return;
+          const label=bi.value.trim()||('第 '+nth+' 批');
+          c.batches.push({id:uid(), label, laneId:lane.id, stages:lane.stages.slice(), cur:0, done:false, at:toISO(new Date())});
+          uiCase.batchAdd=null; caseTouch(c,'新批次：'+label); renderTracker();
+        };
+        okB.onclick=goB; bi.onkeydown=e=>{ if(e.key==='Enter'&&!e.isComposing) goB(); };
+        row.append(bi,laneSel,okB); dt.appendChild(row); setTimeout(()=>bi.focus(),0);
+      }
+      if (uiCase.laneAdd===c.id){
+        const row=document.createElement('div'); row.className='pickerRow'; row.style.marginTop='0';
+        row.appendChild(mkLbl('從範本加線：'));
+        const seen=new Set();
+        cfg.tracks.forEach(t=>t.lanes.forEach(l=>{
+          const key=l.name+'|'+l.stages.join('>'); if (seen.has(key)) return; seen.add(key);
+          const b=document.createElement('span'); b.className='memberTag'; b.textContent=l.name+'（'+t.name+'）'; b.title=l.stages.join(' > ');
+          b.onclick=()=>{ c.lanes.push({id:uid(), name:l.name, stages:l.stages.slice(), cur:0}); uiCase.laneAdd=null; caseTouch(c,'加線：'+l.name); renderTracker(); };
+          row.appendChild(b);
+        }));
+        dt.appendChild(row);
+      }
+    }
+    // 各線細節（可移除線）＋ 已完成批次
+    if (c.lanes.length){
+      const ls=document.createElement('div'); ls.className='cbSec'; ls.textContent='🛤 線與階段'; dt.appendChild(ls);
+      c.lanes.forEach((l,i)=>{
+        const line=document.createElement('div'); line.style.cssText='font-size:12.5px;color:var(--sub);display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
+        line.appendChild(document.createTextNode(l.name+'：'+l.stages.map((s,j)=>(j<l.cur?'✓':'○')+s).join('　')));
+        if (!ro && !c.closed && c.lanes.length>1){
+          const x=document.createElement('button'); x.className='qbtn subtleBtn'; x.style.cssText='padding:0 6px;min-height:0;'; x.textContent='✕'; x.title='移除這條線';
+          x.onclick=()=>{ c.lanes.splice(i,1); caseTouch(c,'移除線：'+l.name); renderTracker(); }; line.appendChild(x);
+        }
+        dt.appendChild(line);
+      });
+    }
+    const doneB=c.batches.filter(b=>b.done);
+    if (doneB.length){
+      const bs=document.createElement('div'); bs.className='cbSec'; bs.textContent='🔁 已完成的批次（'+doneB.length+'）'; dt.appendChild(bs);
+      const line=document.createElement('div'); line.style.cssText='font-size:12.5px;color:var(--sub);';
+      line.textContent=doneB.map(b=>'✓ '+b.label+(b.at?'（'+fmtDate(fromISO(b.at))+' 起）':'')).join('　'); dt.appendChild(line);
+    }
+    // 備註
+    if (!ro){
+      const nt=document.createElement('textarea'); nt.className='trkNote'; nt.style.marginTop='0';
+      nt.placeholder='⚠ 備註／注意事項（會顯示在卡片上，例：這校交件檔要密碼、成績要 CC 系辦）'; nt.value=c.note||''; nt.readOnly=c.closed;
+      nt.onchange=()=>{ c.note=nt.value.trim(); caseTouch(c,null); renderTracker(); };
+      dt.appendChild(nt);
+    }
+    // 歷史
+    const hs=document.createElement('div'); hs.className='cbSec'; hs.textContent='📜 歷史（階段變動自動記，也可以自己補一行）'; dt.appendChild(hs);
+    if (!ro && !c.closed){
+      const row=document.createElement('div'); row.style.cssText='display:flex;gap:6px;align-items:center;';
+      const hi=document.createElement('input'); hi.className='miniInput'; hi.style.flex='1'; hi.placeholder='補一行紀錄，Enter 送出（例：9/21 窗口說第三批下週到）';
+      hi.onkeydown=e=>{ if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229&&hi.value.trim()){ caseTouch(c, hi.value.trim()); renderTracker(); } };
+      row.appendChild(hi); dt.appendChild(row);
+    }
+    const ul=document.createElement('ul'); ul.className='cbHist';
+    if (!c.hist.length){ const li=document.createElement('li'); li.textContent='（還沒有紀錄）'; ul.appendChild(li); }
+    c.hist.slice(0,30).forEach(h=>{ const li=document.createElement('li'); li.textContent=(fromISO(h.d)?fmtDate(fromISO(h.d)):h.d)+'　'+h.t; ul.appendChild(li); });
+    if (c.hist.length>30){ const li=document.createElement('li'); li.textContent='…共 '+c.hist.length+' 條'; ul.appendChild(li); }
+    dt.appendChild(ul);
+    if (c.closed && !ro){
+      const re=document.createElement('button'); re.className='qbtn'; re.textContent='↩ 恢復進行中'; re.style.alignSelf='flex-start';
+      re.onclick=()=>{ c.closed=false; caseTouch(c,'恢復進行中'); renderTracker(); }; dt.appendChild(re);
+    }
+    card.appendChild(dt);
   }
   return card;
 }
@@ -5839,7 +6521,8 @@ document.addEventListener('drop', e=>{
   const f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
   if (!f) return;
   if (module==='phone') pbImportFile(f);
-  else catSay('要匯入聯絡人的話，先到 📞 電話簿再把檔案丟進來喵',3200);
+  else if (module==='track' && (uiTrk.tab||'trk')==='cases' && /\.json$/i.test(f.name)) caseImportFile(f);   // v61：追案看板可直接拖更新檔進來
+  else catSay('要匯入聯絡人先到 📞 電話簿、追案更新檔先到 🧭 追案看板，再把檔案丟進來喵',3600);
 });
 
 /* 簡易 CSV 解析（支援引號欄位） */
@@ -7033,7 +7716,7 @@ const GUIDE_SECTIONS=[
   +'2️⃣ 左下角 <b>🏢 工作 ⇄ 🏠 私人</b> 是兩個獨立空間，資料完全分開；再點一下變 🌍 總覽（唯讀合併看）。<br>'
   +'3️⃣ <b>首頁可以直接記事</b>：「今天先看這裡」卡片裡的輸入列打字按 Enter，就建好任務（「下週三前…」這類期限照樣會解析），不用先切到任務小窩。<br>'
   +'4️⃣ 東西太多記不住沒關係，回來翻這本指南就好😸'},
- {id:'task', isNew:true, t:'🏡 任務小窩：一行一件、點開看細節', h:
+ {id:'task', t:'🏡 任務小窩：一行一件、點開看細節', h:
   '<b>三種呈現方式</b>（工具列右側「☰ 列／▦ 卡片／▥ 看板」，選了會記住）：<br>'
   +'・<b>☰ 列</b>（預設）＝一行一件。最左邊的<b>圓圈點一下就完成</b>；<b>點那一列</b>展開成完整卡片（內文、勾選清單、標籤、動作鈕都在），右上「▴ 收合」收回。<br>'
   +'・<b>▦ 卡片</b>＝每件都是完整卡片，雙欄橫向排序；超過 3 項的勾選清單先收成進度條，按「▾ 展開清單」。<br>'
@@ -7083,7 +7766,7 @@ const GUIDE_SECTIONS=[
   +'<code>| 學校 | 狀態 |</code><br><code>| 台大 | 已回 |</code><br><code>| 清大 | 催中 |</code><br>'
   +'標題和內容之間可以加 <code>|---|---|</code> 分隔行（不加也可以，第一行自動當表頭）。<br>'
   +'<span style="color:var(--sub);">不喜歡自動排版？⚙️ 設定 → 📝 文字顯示 可以關掉 Markdown。</span>'},
- {id:'notes', isNew:true, t:'📒 便利貼與 📔 手札', h:
+ {id:'notes', t:'📒 便利貼與 📔 手札', h:
   '<b>便利貼</b>＝隨手記。想到什麼丟上來，之後可以：📮 轉成正式任務｜📎 貼進某個任務的內文｜📂 掛到專案。<br><br>'
   +'<b>動作鈕</b>（編輯、轉任務、複製、換大小、封存、刪除…）平常收起來，<b>滑到那張便利貼上</b>才會從底部浮出一條工具列；手機上則常駐顯示。左下角的小圓點點一下換顏色。<br>'
   +'<b>調大小</b>：便利貼牆是對齊的格線——按工具列的 ⤢ 切換<b>寬度</b>「1 欄／2 欄／整列」；<b>高度</b>抓右下角往下拉，拉多高記多高。<br>'
@@ -7095,8 +7778,18 @@ const GUIDE_SECTIONS=[
   +'用「<b>＋ 直接新增</b>」列在專案裡直接加任務/便利貼/說明書/網站，自動掛好專案不用跳頁｜'
   +'按 🧱 版面自訂要顯示哪些區塊。<br>'
   +'新增/改名/換色專案請到 <b>⚙️ 設定</b> 的類別管理。'},
- {id:'track', isNew:true, t:'📦 追蹤項目：等一群人交東西', h:
-  '要跟一群人（各校窗口、全班、各單位）收東西時用這個。頁面分兩個分頁：<br>'
+ {id:'cases', isNew:true, t:'🧭 追案看板：一個對象、好幾條事、球在誰', h:
+  '在「📦 追蹤項目」頁的第一個分頁。跟勾選表不同：<b>勾選表追「一件事 × 一群人」</b>，追案看板追<b>「一個對象身上好幾條平行的事」</b>——每間學校／每個廠商／每位客戶一張卡。<br><br>'
+  +'<b>七個詞（程式只認這些，名字都可以自己取）：</b><br>'
+  +'・<b>案子</b>＝對象（一張卡）　・<b>軌</b>＝範本（這類案子有哪幾條線）　・<b>線</b>＝平行的事（例：進度線、經費線）　・<b>階段</b>＝線上的順序格子<br>'
+  +'・<b>批次</b>＝同一條線會重複發生的事（第 2 批、加選 #3），照那條線的階段再跑一輪，做完自動收進歷史<br>'
+  +'・<b>球在誰</b>＝現在卡在誰手上（角色最多 6 個、顏色四選）——這是看板的第一資訊，KPI 與顏色都繞著它<br>'
+  +'・<b>更新日</b>＝任何改動自動記；超過 N 天沒動的卡片變淡、可篩選<br><br>'
+  +'<b>怎麼用：</b>點線上的格子＝那格完成（再點最後一格已完成的＝退回）；點右上角膠囊換「球在誰」；「下一步」與「誰／CC 誰」直接在卡片上打字；點案子名稱展開歷史（階段變動自動記）、加批次、加線、備註、結案。<br>'
+  +'<b>⚙ 看板設定</b>：角色名稱與顏色、軌範本（一行一條線「線名：階段1 > 階段2」）、幾天算擱置。改設定不會動到已建的案子。<br>'
+  +'<b>📥 匯入更新檔</b>：AI 或別台電腦整理好的 JSON（format: catlendar-cases）——依「案子＋線」合併，只覆蓋檔案裡有給的欄位、你手改的其他內容不動，匯入前自動拍快照。也可以直接把檔案拖進看板。<b>📤 匯出案子</b>＝同一種格式，給 AI 讀或搬到別台電腦。格式說明見使用說明「追案匯入檔格式」。'},
+ {id:'track', t:'📦 追蹤項目：等一群人交東西', h:
+  '要跟一群人（各校窗口、全班、各單位）收東西時用這個。頁面除了 🧭 追案看板，還有兩個分頁：<br>'
   +'<b>📇 名單</b>＝可重複使用的資料庫——成員資料（試算表式直接改）、⬇️ 下載範本／📥 上傳 CSV 一鍵匯入、'
   +'📞 綁電話簿聯絡人（建追蹤自動帶入）、🚫 停用成員、🔍 看某人在所有追蹤的狀況、參與哪些追蹤一目瞭然。<br>'
   +'<b>📦 追蹤項目</b>＝進行中的作業——用名單建一張勾選表，誰交了就打勾。'
@@ -7109,7 +7802,7 @@ const GUIDE_SECTIONS=[
   +'• 期間任務（8/1到8/15）＝整段期間顯示小圖示，最後一天紅底線<br>'
   +'• ⏳ 追蹤日＝該去催對方的日子<br>'
   +'• ✓ 完成日＝實際做完那天'},
- {id:'diary', isNew:true, t:'📓 日誌：今天做了什麼、學了什麼', h:
+ {id:'diary', t:'📓 日誌：今天做了什麼、學了什麼', h:
   '<b>總月曆看未來（接下來要做什麼），日誌看過去（我做了什麼）。</b>一天一頁，寬螢幕左右兩欄（窄螢幕與手機上下排）：<br><br>'
   +'<b>🤖 右欄・系統幫你記</b>：完成的任務與子任務、收到的回傳、習慣打卡、番茄收成、寫下的註解、記的帳、便利貼/說明書異動——'
   +'全部從現有紀錄即時彙整，你什麼都不用做；⚙ 可以挑要顯示哪些。<br>'
@@ -7219,6 +7912,9 @@ function diarySummary(dIso){
       if (got.length) lines.push(trk.title+'：'+(trk.doneWord||'回傳')+' '+got.join('、'));
     });
     if (lines.length) out.push({t:'📦 收到回傳', lines});
+    const cl=[];
+    cases.filter(c=>spaceMatch(c.space)).forEach(c=>c.hist.filter(h=>h.d===dIso).forEach(h=>cl.push(c.name+'：'+h.t)));
+    if (cl.length) out.push({t:'🧭 追案異動（'+cl.length+'）', lines:cl});
   }
   if (on('habits')){
     const lines=habits.filter(h=>spaceMatch(h.space)&&(h.log||{})[dIso])
@@ -7743,6 +8439,20 @@ function renderHome(){
     });
     if (!vt.length) l2.push({t:'沒有進行中的追蹤',c:'var(--sub)'});
     grid.appendChild(mkCard('📦 追蹤項目', l2,'track', vt.length ? vt.reduce((n,trk)=>n+trk.rows.filter(r=>!r.skipped&&!r.done).length,0)+' 待回' : ''));
+    // v61 🧭 追案看板：有案子才出現；只看數量模式不露出案子名稱
+    const vc=cases.filter(c=>spaceMatch(c.space)&&!c.closed);
+    if (vc.length){
+      const cfg=caseCfg(); const l4=[];
+      const first=cfg.roles[0];
+      const mine=first?vc.filter(c=>c.ball===first.id):[];
+      cfg.roles.forEach(r=>{ const n=vc.filter(c=>c.ball===r.id).length; if (n) l4.push({t:'等'+r.name+' '+n+' 個', c:{accent:'var(--accent)',orange:'var(--orange)',red:'var(--red)',green:'var(--green)'}[r.color]||'var(--ink)'}); });
+      const st=vc.filter(caseIsStale).length; if (st) l4.push({t:'🕰 '+st+' 個超過 '+cfg.staleDays+' 天沒更新', c:'var(--sub)'});
+      if (!l4.length) l4.push({t:'都沒有待辦，太棒了', c:'var(--sub)'});
+      if (det) mine.slice(0,3).forEach(c=>l4.push({t:'・'+c.name.slice(0,10)+(c.next?'：'+c.next.slice(0,16):''), c:'var(--sub)'}));
+      const mc=mkCard('🧭 追案看板', l4,'track', first ? mine.length+' 等'+first.name : vc.length+' 個');
+      mc.addEventListener('click',()=>{ uiTrk.tab='cases'; },true);
+      grid.appendChild(mc);
+    }
   }
   if (settings.modules.money!==false){
     const vm=money.filter(m=>spaceMatch(m.space));
@@ -9340,12 +10050,12 @@ catBox.addEventListener('click',()=>{
 function buildBackup(){
   let contacts=[];
   try{ contacts=JSON.parse(localStorage.getItem(CONTACT_KEY))||[]; }catch(e){}
-  return {format:'taskInbox-backup', tasks, rosters, trackers, contacts, settings, notes, pbook, sites, manuals, money, stocks:stk, habits, pomodoro:pomoData, diary};
+  return {format:'taskInbox-backup', tasks, rosters, trackers, cases, contacts, settings, notes, pbook, sites, manuals, money, stocks:stk, habits, pomodoro:pomoData, diary};
 }
 /* 🕒 自動快照：每天開啟時自動留一份，最多 5 份（防手滑誤刪）
    v43 輪替保護：「最後一份有資料的快照」永遠不會被空快照擠掉——
    資料事故後每天自動拍的空快照，曾把僅存的好快照輪替掉（第四次事故實錄） */
-const SNAP_DATA_KEYS=['tasks','rosters','trackers','notes','pbook','sites','money','manuals','habits','diary'];
+const SNAP_DATA_KEYS=['tasks','rosters','trackers','cases','notes','pbook','sites','money','manuals','habits','diary'];
 function snapCount(s){                       // 這份快照有幾筆資料（算過就記在 s.n）
   if (typeof s.n==='number') return s.n;
   try{
@@ -9378,7 +10088,7 @@ function takeSnapshot(auto){
 let bootWipeSnap=null;
 function checkWipeAtBoot(){
   try{
-    const total=tasks.length+rosters.length+trackers.length+notes.length+pbook.length
+    const total=tasks.length+rosters.length+trackers.length+cases.length+notes.length+pbook.length
       +sites.length+money.length+manuals.length+habits.length+diary.length;
     if (total>0) return;
     const arr=JSON.parse(localStorage.getItem('taskInbox.snapshots'))||[];
@@ -9401,6 +10111,7 @@ function restoreSnapshot(s){
     if (d.stocks) localStorage.setItem('taskInbox.stocks', JSON.stringify(d.stocks));      // 同上
     if (d.pomodoro) localStorage.setItem('taskInbox.pomo', JSON.stringify(d.pomodoro));    // 同上
     if (d.diary) localStorage.setItem('taskInbox.diary', JSON.stringify(d.diary));         // 同上
+    if (d.cases) localStorage.setItem(CASES_KEY, JSON.stringify(d.cases));                  // v61 追案（舊快照沒這欄，不清空）
 
     localStorage.setItem(CONTACT_KEY, JSON.stringify(d.contacts||[]));
     if (d.settings && d.settings.cats) localStorage.setItem(SETTINGS_KEY, JSON.stringify(d.settings));
@@ -9428,7 +10139,7 @@ function importPanelHide(){ const p=document.getElementById('importPanel'); p.st
 function showImportPreview(data, fname){
   pendingImport=data;
   const cnt=k=>Array.isArray(data)?(k==='tasks'?data.length:0):((data[k]||[]).length||0);
-  const parts=[['tasks','任務'],['rosters','名單'],['trackers','追蹤'],['notes','便利貼'],['pbook','電話簿'],
+  const parts=[['tasks','任務'],['rosters','名單'],['trackers','追蹤'],['cases','追案'],['notes','便利貼'],['pbook','電話簿'],
     ['sites','收藏'],['money','記帳'],['manuals','說明書'],['habits','習慣'],['diary','日誌']]
     .map(([k,l])=>l+' '+cnt(k)).join('｜');
   const p=importPanelShow('<b>📥 備份檔預覽</b>　<span style="color:var(--muted2);">'+esc(fname)+'</span><br>'
@@ -9477,6 +10188,9 @@ function applyImport(data){
         const tmap=new Map(trackers.map(x=>[x.id,x]));
         (data.trackers||[]).forEach(x=>{ if(x&&x.id) tmap.set(x.id,x); });
         trackers=[...tmap.values()];
+        const cmap=new Map(cases.map(x=>[x.id,x]));
+        (data.cases||[]).forEach(x=>{ if(x&&x.id) cmap.set(x.id,x); });
+        cases=[...cmap.values()]; saveCases(); loadCases();
         (data.contacts||[]).forEach(learnContact);
         if (data.settings && data.settings.cats && data.settings.cats.work){
           settings=data.settings; saveSettings(); applyMascot();
@@ -9538,6 +10252,12 @@ document.getElementById('importFile').addEventListener('change', e=>{
   r.onload=()=>{
     try{
       const data=JSON.parse(r.result);
+      if (data && data.format==='catlendar-cases' && Array.isArray(data.cases)){   // v61：追案更新檔丟到設定頁也認得，轉到看板預覽
+        if (settings.modules.track===false){ settings.modules.track=true; saveSettings(); }
+        uiCase.pendingImport={data, fname:f.name}; uiCase.status=null;
+        uiTrk.tab='cases'; module='track'; render();
+        e.target.value=''; return;
+      }
       if (!Array.isArray(data) && !(data && data.format==='taskInbox-backup')) throw new Error();
       showImportPreview(data, f.name);
     }catch(err){
@@ -10702,7 +11422,7 @@ renderSettings=function(){
   applyMascot();
   applyCatPos();   // 貓咪記得上次待的位置
   renderDatalist();
-  load(); loadTrack(); loadNotes(); loadPB(); loadSites(); loadManuals(); loadMoney(); loadStocks(); loadHabits(); loadPomo(); loadDiary();
+  load(); loadTrack(); loadCases(); loadNotes(); loadPB(); loadSites(); loadManuals(); loadMoney(); loadStocks(); loadHabits(); loadPomo(); loadDiary();
   renderDatalist();
   checkWipeAtBoot();    // 🛡 先看資料是否異常歸零（要在拍今日快照前判斷）
   takeSnapshot(true);   // 每天第一次開啟自動留快照（最多5份；空快照不會擠掉好快照）
