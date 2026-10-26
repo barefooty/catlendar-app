@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Catlendar">
 <meta name="theme-color" content="#9aab60">
-<script>window.APP_BUILD='v65.1-2026-10-26';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
+<script>window.APP_BUILD='v65.2-2026-10-26';</script><!-- 🔄 版本戳：上線版靠它偵測新版本（每次改版要一起改） -->
 <title>Catlendar — 可憐上班族的貓貓日曆 🐾</title>
 <!-- 2026-08-07 v41：全站排版打磨——表單標籤化／次要按鈕滑過才亮／追蹤卡表格設定收納 -->
 <!-- 2026-08-08 v42：可用性體檢——對比度全面達標（--on-accent/--on-red/--on-green 深色主題自動深字、淺色門檻4.8、accent對soft底驗證）、提示字級12px、術語統一（點名→追蹤）、新用戶導覽補齊 diary 預設關閉 -->
@@ -1119,6 +1119,9 @@ body .navItem{display:flex;align-items:center;gap:10px;background:transparent;bo
 body .navItem[data-m]::before{content:'○';font-size:17px;line-height:1;color:var(--muted);width:17px;flex-shrink:0;text-align:center}body .navItem[data-m=home]::before{content:'⌂'}body .navItem[data-m=tasks]::before{content:'☑'}body .navItem[data-m=bigcal]::before{content:'▦'}body .navItem[data-m=diary]::before{content:'▤'}body .navItem[data-m=notes]::before{content:'▧'}body .navItem[data-m=settings]::before{content:'⚙'}body .navDivider{background:var(--line);margin:7px 12px}body .mainCol{min-width:0}
 .creamIntro{display:flex;justify-content:space-between;gap:15px;align-items:flex-end;margin:2px 0 22px}.creamIntro small{font:10px Georgia,serif;letter-spacing:2px;color:var(--muted)}.creamIntro h2{font-size:26px;font-weight:500;letter-spacing:1px;color:var(--ink);margin:6px 0}.creamIntro p{font-size:13px;color:var(--muted)}.creamEdition{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:30px;padding:6px 12px;white-space:nowrap}
 body :is(.inputCard,.trkCard,.homeCard,.projCard,.guideCard,.diaryMain,.diaryAside,.setGroup){background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 4px 18px rgba(91,66,42,.025)}body :is(.inputCard,.trkCard){padding:20px;margin-bottom:17px}
+/* v65.2：設定頁群組卡片化後補內距——標題不再貼圓角、裡面的小卡不再頂到群組邊框 */
+body section.setGroup{padding:16px 18px 8px}body .setGroup>.setGroupHead{margin:0 2px 12px}body .setCards>.trkCard{box-shadow:none}
+@media (max-width:600px){body section.setGroup{padding:12px 12px 4px;border-radius:18px}}
 body .homeGrid{gap:17px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}body .homeGrid>.homeCard{padding:20px}body .homeBig{font-family:Georgia,serif;font-size:32px;font-weight:normal}body .homeSec{padding-top:12px;margin-top:12px;border-top:1px dashed var(--line)}body .tTitle{font-size:15px;letter-spacing:.4px;color:var(--ink)}
 body .homeQuick{margin-top:18px;gap:10px}body .homeQuick input{background:var(--cell-bg);padding:12px 15px;border-radius:14px;border:1px solid var(--line)}
 body :is(.qbtn,.btnAdd,.viewToggle button,.toolRow .filters button){border-radius:12px;font-family:inherit;box-shadow:none;line-height:1.5}body .qbtn{background:var(--gray-bg);color:var(--ink);padding:7px 12px;min-height:34px}body .btnAdd{background:var(--accent);color:var(--on-accent);padding:10px 19px;font-size:13px}
